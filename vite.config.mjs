@@ -14,23 +14,30 @@ export default defineConfig({
     },
     build: {
         lib: {
-            entry: path.resolve(__dirname, 'src/index.js'),
+            entry: {
+                'index': path.resolve(__dirname, 'src/index.js'),
+                'ui': path.resolve(__dirname, 'src/components/ui/index.js'),
+                'ui-echarts': path.resolve(__dirname, 'src/components/ui/echarts.js'),
+            },
             formats: ['es'],
         },
         outDir: 'dist',
         emptyOutDir: true,
         sourcemap: false,
         rollupOptions: {
-            external: [
-                'react',
-                'react-dom',
-                'react-dom/client',
-                'react/jsx-runtime',
-                'react-router-dom',
-                'antd',
-                '@ant-design/icons',
-                'axios',
-            ],
+            // echarts 用的是深层子路径 (echarts/core, echarts/charts, echarts/components,
+            // echarts/renderers), 字符串数组匹配不到前缀, 必须用函数式判定。
+            external: (id) =>
+                id === 'react' ||
+                id === 'react-dom' ||
+                id === 'react-dom/client' ||
+                id === 'react/jsx-runtime' ||
+                id === 'react-router-dom' ||
+                id === 'antd' ||
+                id === '@ant-design/icons' ||
+                id === 'axios' ||
+                id === 'echarts' ||
+                id.startsWith('echarts/'),
         },
     },
 });

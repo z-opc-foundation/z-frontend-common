@@ -10,6 +10,8 @@
  * 规范版，LoginPage 扩展 mockAuth 双模式（§16）。
  */
 
+export * from './components/ui/index.js'
+
 export { AppLayout } from './components/Layout/index.jsx'
 export { default as LoginPage } from './components/LoginPage/index.jsx'
 export { default as StatusTag, defaultStatusMap } from './components/StatusTag/index.jsx'
