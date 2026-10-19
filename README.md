@@ -64,6 +64,12 @@ const MOCK_AUTH = { username: 'admin', password: '123456', user: { name: 'admin'
 
 完整模板见 lead 008 §16；出厂自检清单见 §9。
 
+## 文档目录
+
+本项目文档统一收口在 `_doc/` 下（八类固定编号表，桶按需存在）:
+
+- [`_doc/001_arch/`](_doc/001_arch/) — 架构、接口、DB schema、协议、路线图
+
 ## 历史
 
 - `0.1.0 – 0.1.6`：早期形态（pre-§16），源码曾位于 `yuku123/z-opc` 仓的 `z-frontend-common/` 子目录
