@@ -37,9 +37,23 @@ export function setupInterceptors(instance, options = {}) {
         (error) => {
             const status = error.response?.status
             if (status === 401) {
-                localStorage.removeItem(tokenKey)
-                localStorage.removeItem(userInfoKey)
-                window.location.href = unauthorizedRedirect
+                // ⚠ 401 有两种含义，HTTP 码一样但语义相反，必须分开：
+                //   会话 401（平台 SSO 层）: {"success":false,"code":401,"message":"未登录或Token无效","data":null}
+                //   业务 401（子域自己的凭据/口径）: {"success":false,"errorCode":"MISSING_API_KEY","message":"..."}
+                // 业务 401 **不是**平台会话过期 —— 清 token 跳登录会把人直接踢出系统。
+                // 实测（2026-10-20）：z-script 的 /api/script/** 被它自己的 ApiKeyAuthInterceptor
+                // 拦成 401 MISSING_API_KEY，一进 /script/manage 就被踢回 /login
+                // （运维面当年为此把该页从菜单里摘掉了）。
+                // 判据用「响应体带 errorCode」：平台会话 401 不带 errorCode，业务 401 带 —— 互斥，不会误伤真会话失效。
+                const body = error.response?.data
+                const isBusiness401 = !!(body && typeof body === 'object' && body.errorCode)
+                if (isBusiness401) {
+                    console.warn(`[401] 业务鉴权失败（不是会话过期，不跳登录）: ${error.config?.url} → ${body.errorCode}`)
+                } else {
+                    localStorage.removeItem(tokenKey)
+                    localStorage.removeItem(userInfoKey)
+                    window.location.href = unauthorizedRedirect
+                }
             } else if (status === 403) {
                 console.error('没有权限访问该资源')
             } else if (status === 500) {
