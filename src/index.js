@@ -1,7 +1,7 @@
 /**
  * z-frontend-common 桶导出 —— lead 008 前端开发规范唯一承载仓。
  *
- * 40+ 仓 suit 的 AppLayout / LoginPage 唯一来源；21 个 <repo>-component 的
+ * 40 个 suit 的 AppLayout / LoginPage 唯一来源；31 个 <repo>-component 的
  * services 层消费 createRequest / request / authRequest。
  *
  * API 契约与 0.1.1 完全兼容（ErrorBoundary / LoginPage / StatusTag /

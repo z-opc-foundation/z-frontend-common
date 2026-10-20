@@ -17,7 +17,7 @@ export function unwrapResponse(body) {
 
 /**
  * axios 拦截器装配（request / authRequest 预建实例与 createRequest 工厂共用）。
- * 与 0.1.1 的 API 契约逐字段一致，21 个 component 仓的 services 层在消费，不能改签名。
+ * 与 0.1.1 的 API 契约逐字段一致，31 个 component 仓的 services 层在消费，不能改签名。
  */
 export function setupInterceptors(instance, options = {}) {
     const {
@@ -52,7 +52,7 @@ export function setupInterceptors(instance, options = {}) {
 }
 
 /**
- * axios 实例工厂 —— 21 个 <repo>-component 的 services/api.js 用它建各自的请求实例。
+ * axios 实例工厂 —— 31 个 <repo>-component 的 services/api.js 用它建各自的请求实例。
  * @param {Object} options
  * @param {string}  [options.baseURL='/api']
  * @param {number}  [options.timeout=10000]

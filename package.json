@@ -25,7 +25,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "prepublishOnly": "vite build"
+    "prepublishOnly": "vite build",
+    "test": "node --test test/"
   },
   "dependencies": {
     "axios": "^1.16.1"
