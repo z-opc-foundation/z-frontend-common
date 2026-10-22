@@ -1,6 +1,6 @@
 {
   "name": "@yuku123/z-frontend-common",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "z-opc 全仓共享前端基座 — AppLayout(§1/§11/§12/§15/§16) + LoginPage(mockAuth 双模式) + EmptyState/StatusTag/ErrorBoundary + createRequest 工厂。lead 008 前端开发规范唯一承载仓",
   "type": "module",
   "main": "./dist/index.js",
