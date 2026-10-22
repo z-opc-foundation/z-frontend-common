@@ -21,6 +21,8 @@ import useListFilter from './useListFilter'
  *
  * 透传约定：
  *   - `cardProps` → 传给外层 `<Card>`（如 `style` / `size` / `title`）
+ *   - `cardExtra` → 传给外层 `<Card>` 的 `extra`（动作按钮）。若同时给了 `searchKeys`，
+ *     过滤框与 extra **并排**渲染，不会二选一吞掉另一个。
  *   - `tableProps` → 传给内层 `<Table>`（如 `scroll` / `columns` 之外的表级属性）
  *   - 其余 props → 直接给 `<Table>`（与 antd 一致）
  *   - `pagination={false}` 仍然允许显式传（用于「数据已知 ≤10 行且不变」的豁免场景，
@@ -67,8 +69,19 @@ export default function ListTable({
         )
         : null
 
+    // Card 的 extra 可以同时挂「过滤框」和「动作按钮」（例如「关系」表既有搜索又有「新增」）。
+    // 二选一会把其中一个静默吞掉，所以这里两个都有就并排渲染。
+    const extra = (search && cardExtra)
+        ? (
+            <span style={{display: 'inline-flex', alignItems: 'center', gap: 8}}>
+                {search}
+                {cardExtra}
+            </span>
+        )
+        : (search || cardExtra)
+
     return (
-        <Card title={cardTitle} extra={search || cardExtra} {...cardProps}>
+        <Card title={cardTitle} extra={extra} {...cardProps}>
             <Table
                 rowKey={rowKey}
                 columns={columns}

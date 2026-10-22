@@ -121,3 +121,16 @@ test('不给 searchKeys 时不渲染过滤框（过滤是空操作，不制造�
     }));
     assert.ok(!html.includes('placeholder="过滤"'), '不该出现默认过滤框');
 });
+
+test('过滤框与 cardExtra（动作按钮）同时给时两个都在，不二选一', () => {
+    const html = renderToStaticMarkup(createElement(ListTable, {
+        rows: [{name: 'A', code: 'C-1'}],
+        columns: COLUMNS,
+        rowKey: 'code',
+        searchKeys: 'name',
+        searchPlaceholder: '按名称过滤',
+        cardExtra: createElement('button', {type: 'button'}, '新增'),
+    }));
+    assert.ok(html.includes('按名称过滤'), '过滤框被吞了');
+    assert.ok(html.includes('新增'), '动作按钮被吞了');
+});
