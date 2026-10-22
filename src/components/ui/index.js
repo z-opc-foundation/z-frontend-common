@@ -31,5 +31,7 @@ export {default as PageHeader} from './PageHeader'
 export {default as TableToolbar, RefreshButton} from './TableToolbar'
 export {default as StatusBadge} from './StatusBadge'
 export {default as PagedTable} from './PagedTable'
+// ComponentDoc - 组件文档页（§7）：左侧 240px TOC + 右侧正文，各仓只提供 DOC.md
+export {default as ComponentDoc} from './ComponentDoc'
 
 export {brand, palette, neutral, radius, shadow, lift, space, fontSize, antdTheme} from './tokens'

@@ -75,8 +75,26 @@ function srcIndexFacts() {
             if (name) explicit.add(name);
         }
     }
-    const defBody = src.slice(src.indexOf('export default {'));
-    const defNames = [...defBody.matchAll(/^\s{4}(\w+),/gm)].map((m) => m[1]);
+    // default 桶的成员名单 —— 两种写法都要认：
+    //   ① `export default { A, B }`（旧写法）
+    //   ② `const bucket = { A, B }; export default bucket`（3f0f4a3 起的新写法：
+    //      桶要补 axios 动词转发，不能再是字面量，只能先具名再导出）
+    // ⚠ 尺子必须跟着源码写法走：只认 ① 时，源码换成 ② 会让 `indexOf` 返回 -1 ⇒
+    //   slice(-1) 取到文件最后一个字符 ⇒ 成员数重算成 0 ⇒ **尺子自己把真值判成红**。
+    const bucketBody = (() => {
+        const literal = src.indexOf('export default {');
+        if (literal >= 0) return src.slice(literal);
+        // 具名桶：找 `const <name> = {` 且该 name 后面确实被 export default
+        for (const m of src.matchAll(/const\s+(\w+)\s*=\s*\{/g)) {
+            if (new RegExp(`export\\s+default\\s+${m[1]}\\b`).test(src)) {
+                return src.slice(m.index);
+            }
+        }
+        return '';
+    })();
+    const defNames = [...bucketBody.matchAll(/^\s{4}(\w+),/gm)].map((m) => m[1]);
+    assert.ok(defNames.length > 0,
+        'src/index.js 的 default 桶一个成员都没解析出来 —— 尺子的桶解析器跟不上源码写法了（README 说 8 个成员）');
     return { explicit, defNames };
 }
 
@@ -358,7 +376,10 @@ test('尺子的牙口：把 README 的数改错，判定必须判红', () => {
         ['external 精确包数', (s) => s.replace(/external 精确 \*\*9\*\* 个包/, 'external 精确 **7** 个包')],
         ['default 桶成员数', (s) => s.replace(/\*\*8\*\* 个成员/, '**6** 个成员')],
         ['createRequest 默认值', (s) => s.replace(/timeout=10000/, 'timeout=30000')],
-        ['ui 桶具名总数', (s) => s.replace(/= \*\*23\*\* 个具名导出/, '= **25** 个具名导出')],
+        // ⚠ 变异目标要跟着 README 的现值走（ui 桶加了 ComponentDoc 后 23 → 24）：
+        //   写死旧数字 ⇒ replace 不命中 ⇒ 「变异没改动 README」自检先红，
+        //   尺子在自己的牙口上失灵（这不是尺子坏了，是尺子的靶子挪了）。
+        ['ui 桶具名总数', (s) => s.replace(/= \*\*24\*\* 个具名导出/, '= **26** 个具名导出')],
         ['EmptyState 占位回退', (s) => s.replace(/\| \*\*已实装\*\*/, '| **占位**')],
     ];
     for (const [what, mutate] of mutations) {
