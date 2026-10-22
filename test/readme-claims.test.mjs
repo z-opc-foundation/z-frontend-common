@@ -376,10 +376,12 @@ test('尺子的牙口：把 README 的数改错，判定必须判红', () => {
         ['external 精确包数', (s) => s.replace(/external 精确 \*\*9\*\* 个包/, 'external 精确 **7** 个包')],
         ['default 桶成员数', (s) => s.replace(/\*\*8\*\* 个成员/, '**6** 个成员')],
         ['createRequest 默认值', (s) => s.replace(/timeout=10000/, 'timeout=30000')],
-        // ⚠ 变异目标要跟着 README 的现值走（ui 桶加了 ComponentDoc 后 23 → 24）：
+        // ⚠ 变异目标要跟着 README 的现值走（ui 桶加组件后总数会变）：
         //   写死旧数字 ⇒ replace 不命中 ⇒ 「变异没改动 README」自检先红，
         //   尺子在自己的牙口上失灵（这不是尺子坏了，是尺子的靶子挪了）。
-        ['ui 桶具名总数', (s) => s.replace(/= \*\*24\*\* 个具名导出/, '= **26** 个具名导出')],
+        //   这里用「任意数字」正则而不是写死值：靶子再挪也不会失灵。
+        ['ui 桶具名总数', (s) => s.replace(/= \*\*\d+\*\* 个具名导出/, '= **999** 个具名导出')],
+        ['ui 桶组件文件数', (s) => s.replace(/(\d+) 个 UI 组件文件导出/, '999 个 UI 组件文件导出')],
         ['EmptyState 占位回退', (s) => s.replace(/\| \*\*已实装\*\*/, '| **占位**')],
     ];
     for (const [what, mutate] of mutations) {
