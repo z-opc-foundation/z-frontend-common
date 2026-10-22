@@ -15,7 +15,7 @@
 |------|-----|
 | 仓 | `z-opc-foundation/z-frontend-common`（本仓） |
 | npm 包 | `@yuku123/z-frontend-common`（scope 沿用 yuku123，与 0.1.x/0.2.x 旧线连续） |
-| 当前版本 | `1.1.5` —— 1.0 语义：§1-§16 规范化起点；1.1.x 在其上追加扁平 ui 组件桶。0.1.x 是 pre-§16 形态；0.2.x 内嵌 react-dom 已废弃 |
+| 当前版本 | `1.1.6` —— 1.0 语义：§1-§16 规范化起点；1.1.x 在其上追加扁平 ui 组件桶。0.1.x 是 pre-§16 形态；0.2.x 内嵌 react-dom 已废弃 |
 | 技术栈 | React 19 + antd 6 + react-router-dom 7 + Vite 6（lead 005 §3.0 版本线单一尺子） |
 | 产物 | ESM **3 入口**（`formats: ['es']`）：`dist/index.js`（主桶）+ `dist/ui.js`（扁平 ui 桶）+ `dist/ui-echarts.js`（`ui/echarts` 子路径） |
 | 打包策略 | external 精确 **9** 个包 + **1** 条前缀规则（`echarts/*`）：react / react-dom / react-dom/client / react/jsx-runtime / react-router-dom / antd / @ant-design/icons / axios / echarts |
@@ -83,5 +83,6 @@ const MOCK_AUTH = { username: 'admin', password: '123456', user: { name: 'admin'
 - `1.1.1`：在 1.0.0 之上追加扁平 ui 组件桶（13 个 UI 组件 + design token）与 `ui/echarts` 子路径
 - `1.1.2`：ui 桶追加 `ComponentDoc`（§7 组件文档页：240px TOC + 正文两栏、滚动联动、锚点跳转、自带零依赖 markdown 引擎，宿主可注册 react-markdown 三件套升级为 GFM + Prism 高亮）
 - `1.1.4`：ui 桶的 `ListTable` 支持 `cardExtra`（Card 动作按钮）与 `searchKeys`（过滤框）**并排**渲染 —— 原实现二选一，会把其中一个静默吞掉（页面同时有「搜索」和「新增」按钮时按钮消失）。
+- `1.1.6`：`PageHeader` 补两件基座该有的事 —— ① **面包屑项支持 `onClick`**（原先只支持 `href`，而有些页面的上一级不是一条路由，是「回到列表 / 关抽屉 / 切筛选条件」这类动作，`href` 表达不了；这条能力原先只活在 z-wf 仓内那份 PageHeader 拷贝里，并进基座后那份拷贝就能删）；② **没有 Router 上下文时不再抛异常**（`useNavigate` 在 Router 外会抛 invariant，PageHeader 之前没有像 `ComponentDoc` 那样先探上下文 ⇒ 单独渲染它时报的是一句与真实病因毫不相干的错）。同版新增 `test/page-header.test.mjs`（6 例，含变异必须真红）。
 - `1.1.5`：`PagedTable`（**服务端分页**变体）补上 `pageSizeOptions` —— §2 强制规则 2 要求分页凑齐 `pageSize` + `showSizeChanger` + `pageSizeOptions` + `showTotal` 四件套，而 `PagedTable` 的分页参数是内联在组件里的（不走 `DEFAULT_PAGINATION`），此前漏了 `pageSizeOptions` ⇒ 全库 §2 元素级普查把 **8 个仓**的 `PagedTable` 拷贝一起判红（根因是这一处漏项被复制了 8 遍）。同版把 `showTotal` 的两支文案提成纯函数 `PAGED_TOTAL_TEXT` 并加 `test/paged-table.test.mjs`（含变异必须真红）—— antd Table 在空数据时整个分页块不渲染，闭包式文案没法被测到。
 - `1.1.3`：ui 桶追加 `useListFilter` / `filterRows`（§2 强制规则 3 的客户端过滤口径统一收在基座：大小写不敏感、多字段「或」匹配、null 字段不参与匹配、空关键字原样返回）与 `ListTable`（§2 规则 2/3/4 的成品件：分页三件套 + Card extra 过滤框 + EmptyState 空态一次到位）
