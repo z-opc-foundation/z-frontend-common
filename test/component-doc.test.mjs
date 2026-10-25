@@ -134,6 +134,24 @@ test('markdown 字符串传入后渲染出标题 / 表格 / 代码块', async ()
         '外链没带 target=_blank rel=noopener');
 });
 
+test('行内格式：粗体 / 行内代码 / 斜体 / 删除线 / 图片 / 自动链接都能渲染', async () => {
+    // 回归：INLINE_RE 曾把整条分支包进捕获组，导致 **粗体** 落进「链接」分支，
+    // 用 undefined 当链接文字递归渲染 → 含粗体的 DOC.md 整页白屏。
+    const md = [
+        '- **npm 包名**：`@yuku123/z-frontend-common`',
+        '',
+        '这是 **粗体**、`行内代码`、*斜体*、~~删除线~~ 与 ![图](/logo.png) 和 <https://example.com>。',
+    ].join('\n');
+    const html = await renderDoc(md);
+
+    assert.match(html, /<strong>npm 包名<\/strong>/, '粗体没渲染出来');
+    assert.match(html, /<code[^>]*>@yuku123\/z-frontend-common<\/code>/, '行内代码没渲染出来');
+    assert.match(html, /<em>斜体<\/em>/, '斜体没渲染出来');
+    assert.match(html, /<del>删除线<\/del>/, '删除线没渲染出来');
+    assert.match(html, /<img src="\/logo\.png"[^>]*alt="图"/, '图片没渲染出来');
+    assert.match(html, /href="https:\/\/example\.com"/, '自动链接没渲染出来');
+});
+
 test('TOC 项数与 H2 数量一致，且每项都锚到正文真实存在的标题', async () => {
     const html = await renderDoc(DOC);
     const mod = await loadComponent();

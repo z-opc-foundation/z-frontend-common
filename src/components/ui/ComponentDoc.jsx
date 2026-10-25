@@ -153,7 +153,9 @@ const HEADING_RE = /^(#{1,6})\s+(.*?)\s*#*$/
 const HR_RE = /^\s*([-*_])\s*(\1\s*){2,}$/
 const LIST_RE = /^(\s*)([-*+]|\d+[.)])(\s+)(.*)$/
 const QUOTE_RE = /^\s*>\s?(.*)$/
-const INLINE_RE = /(!?\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)|`([^`]+)`|\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|\*([^*\n]+)\*|<((?:https?:\/\/|mailto:)[^>\s]+)>)/g
+// 整条分支必须是非捕获组：外层一旦捕获，粗体/行内代码也会落进「链接」分支，
+// 拿 undefined 的链接文字去递归就直接崩（曾导致所有含 **粗体** 的 DOC.md 白屏）。
+const INLINE_RE = /(?:!?\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)|`([^`]+)`|\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|\*([^*\n]+)\*|<((?:https?:\/\/|mailto:)[^>\s]+)>)/g
 
 /** 表格行切列（去掉首尾的 |，逐格 trim）。 */
 const splitRow = (line) => {
@@ -324,35 +326,35 @@ const renderInline = (text, components) => {
     for (const m of text.matchAll(INLINE_RE)) {
         if (m.index > last) push(text.slice(last, m.index))
         // 分组序号对应 INLINE_RE 的捕获组：
-        // 1=整段图片/链接 2=alt或链接文字 3=src或href | 4=行内代码
-        // 5=**粗体** 6=__粗体__ 7=~~删除线~~ 8=*斜体* 9=<自动链接>
+        // 1=alt或链接文字 2=src或href | 3=行内代码
+        // 4=**粗体** 5=__粗体__ 6=~~删除线~~ 7=*斜体* 8=<自动链接>
         if (m[1] !== undefined) {                    // 图片或链接（靠开头的 ! 区分）
             if (m[0].startsWith('!')) {
                 push(components.img
-                    ? components.img({src: m[3], alt: m[2]})
-                    : <img src={m[3]} alt={m[2] || ''}/>)
+                    ? components.img({src: m[2], alt: m[1]})
+                    : <img src={m[2]} alt={m[1] || ''}/>)
             } else {
-                const children = renderInline(m[2], components)
+                const children = renderInline(m[1], components)
                 push(components.a
-                    ? components.a({href: m[3], children})
-                    : <a href={m[3]}>{children}</a>)
+                    ? components.a({href: m[2], children})
+                    : <a href={m[2]}>{children}</a>)
             }
-        } else if (m[4] !== undefined) {             // 行内代码
+        } else if (m[3] !== undefined) {             // 行内代码
             push(components.code
-                ? components.code({children: m[4]})
-                : <code>{m[4]}</code>)
-        } else if (m[5] !== undefined) {             // **粗体**
+                ? components.code({children: m[3]})
+                : <code>{m[3]}</code>)
+        } else if (m[4] !== undefined) {             // **粗体**
+            push(<strong>{renderInline(m[4], components)}</strong>)
+        } else if (m[5] !== undefined) {             // __粗体__
             push(<strong>{renderInline(m[5], components)}</strong>)
-        } else if (m[6] !== undefined) {             // __粗体__
-            push(<strong>{renderInline(m[6], components)}</strong>)
-        } else if (m[7] !== undefined) {             // ~~删除线~~
-            push(<del>{renderInline(m[7], components)}</del>)
-        } else if (m[8] !== undefined) {             // *斜体*
-            push(<em>{renderInline(m[8], components)}</em>)
-        } else if (m[9] !== undefined) {             // <自动链接>
+        } else if (m[6] !== undefined) {             // ~~删除线~~
+            push(<del>{renderInline(m[6], components)}</del>)
+        } else if (m[7] !== undefined) {             // *斜体*
+            push(<em>{renderInline(m[7], components)}</em>)
+        } else if (m[8] !== undefined) {             // <自动链接>
             push(components.a
-                ? components.a({href: m[9], children: m[9]})
-                : <a href={m[9]}>{m[9]}</a>)
+                ? components.a({href: m[8], children: m[8]})
+                : <a href={m[8]}>{m[8]}</a>)
         }
         last = m.index + m[0].length
     }
