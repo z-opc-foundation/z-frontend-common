@@ -1,12 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import {safeEmptyOutDir} from './build-tools/safe-vite-plugin.mjs'
 
 // z-frontend-common — lead 008 §1-§16 前端开发规范唯一承载仓。
 // 产物：dist/index.js（ESM 单文件），react/antd/@ant-design/icons/react-router-dom/axios
 // 全部 external（消费方自己的 node_modules，杜绝双实例）。
 export default defineConfig({
-    plugins: [react()],
+    plugins: [safeEmptyOutDir(), react()],
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'),
@@ -22,7 +23,7 @@ export default defineConfig({
             formats: ['es'],
         },
         outDir: 'dist',
-        emptyOutDir: true,
+        emptyOutDir: false,
         sourcemap: false,
         rollupOptions: {
             // echarts 用的是深层子路径 (echarts/core, echarts/charts, echarts/components,
