@@ -372,7 +372,7 @@ test('尺子的牙口：把 README 的数改错，判定必须判红', () => {
     const f = facts();
     const mutations = [
         ['当前版本', (s) => s.replace(/当前版本 \| `[0-9.]+`/, '当前版本 | `9.9.9`')],
-        ['产物入口数', (s) => s.replace(/ESM \*\*3 入口\*\*/, 'ESM **1 入口**')],
+        ['产物入口数', (s) => s.replace(/ESM \*\*\d+ 入口\*\*/, 'ESM **1 入口**')],
         ['external 精确包数', (s) => s.replace(/external 精确 \*\*9\*\* 个包/, 'external 精确 **7** 个包')],
         ['default 桶成员数', (s) => s.replace(/\*\*8\*\* 个成员/, '**6** 个成员')],
         ['createRequest 默认值', (s) => s.replace(/timeout=10000/, 'timeout=30000')],

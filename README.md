@@ -2,9 +2,9 @@
 
 > z-opc-foundation 全仓共享前端基座 —— lead 008《前端开发规范》§1-§16 的唯一承载仓。
 
-工作区内 **41** 个 `*-suit` 工程通过同一份 AppLayout / LoginPage 获得一致的
-左菜单架子、登录流程与右上角用户组件；**35** 个 `*-component` 工程声明依赖本包
-（其中 **35** 个在源码里真的 import）。
+工作区内 **46** 个 `*-suit` 工程通过同一份 AppLayout / LoginPage 获得一致的
+左菜单架子、登录流程与右上角用户组件；**40** 个 `*-component` 工程声明依赖本包
+（其中 **39** 个在源码里真的 import）。
 **改一处，全仓同步**。
 
 ---
@@ -15,9 +15,9 @@
 |------|-----|
 | 仓 | `z-opc-foundation/z-frontend-common`（本仓） |
 | npm 包 | `@yuku123/z-frontend-common`（scope 沿用 yuku123，与 0.1.x/0.2.x 旧线连续） |
-| 当前版本 | `1.1.7`（`package.json` 现读） —— 1.0 语义：§1-§16 规范化起点；1.1.x 在其上追加扁平 ui 组件桶。0.1.x 是 pre-§16 形态；0.2.x 内嵌 react-dom 已废弃 |
+| 当前版本 | `1.2.0`（`package.json` 现读） —— 1.0 语义：§1-§16 规范化起点；1.1.x 在其上追加扁平 ui 组件桶；1.2.0 追加 `./code` 代码编辑器子路径（ZCodeEditor + 自研 g4 语法桥）。0.1.x 是 pre-§16 形态；0.2.x 内嵌 react-dom 已废弃 |
 | 技术栈 | React 19 + antd 6 + react-router-dom 7 + Vite 6（lead 005 §3.0 版本线单一尺子） |
-| 产物 | ESM **3 入口**（`formats: ['es']`）：`dist/index.js`（主桶）+ `dist/ui.js`（扁平 ui 桶）+ `dist/ui-echarts.js`（`ui/echarts` 子路径） |
+| 产物 | ESM **4 入口**（`formats: ['es']`）：`dist/index.js`（主桶）+ `dist/ui.js`（扁平 ui 桶）+ `dist/ui-echarts.js`（`ui/echarts` 子路径）+ `dist/code.js`（`./code` 代码编辑器子路径，CodeMirror 6 + 自研 g4 语法桥全量打入） |
 | 打包策略 | external 精确 **9** 个包 + **1** 条前缀规则（`echarts/*`）：react / react-dom / react-dom/client / react/jsx-runtime / react-router-dom / antd / @ant-design/icons / axios / echarts |
 | axios | 声明在 `dependencies`（由消费方安装，`_shared/` vendoring 时期的决策保留：避免消费方从无 node_modules 的目录解析 axios）；bundle 侧 external，不打进产物 |
 
@@ -30,12 +30,13 @@
 | `EmptyState` | **已实装**：`src/components/ui/EmptyState.jsx`（44×44 触控目标、默认标题「暂无数据」、可选 action 按钮），由扁平 ui 桶导出 |
 | `StatusTag` / `defaultStatusMap` | 0.1.1 契约原样保留 |
 | `ErrorBoundary` | 0.1.1 契约原样保留（antd Result 形态重绘） |
-| `createRequest(options)` | axios 实例工厂：`{baseURL='/api', timeout=10000, tokenKey='token', userInfoKey='userInfo', unauthorizedRedirect='/login'}`；35 个 `*-component` 工程声明依赖本包 |
+| `createRequest(options)` | axios 实例工厂：`{baseURL='/api', timeout=10000, tokenKey='token', userInfoKey='userInfo', unauthorizedRedirect='/login'}`；40 个 `*-component` 工程声明依赖本包 |
 | `request` / `authRequest` | 预建实例（`createRequest()` 双份，0.1.1 契约） |
 | `setupInterceptors` | 拦截器装配（Bearer token 注入 + 401 清凭跳登录 + 响应解包） |
 | `unwrapResponse` | **新增显式导出**：`{code, data}` 包装解包 / 裸数据透传（z-opc Spring MVC 统一返回体兼容） |
 | `ui` 扁平桶（`export *`） | **1.1.x 追加**：16 个 UI 组件文件导出 **19** 个具名（`TableToolbar` 同时导出 `RefreshButton`；`useListFilter` 同时导出纯函数 `filterRows`）+ **9** 个 design token（`brand` / `palette` / `neutral` / `radius` / `shadow` / `lift` / `space` / `fontSize` / `antdTheme`）= **28** 个具名导出 |
 | `EChartsChart` | 走子路径 `@yuku123/z-frontend-common/ui/echarts`（不进扁平桶：让不画图的域解析 `echarts/core` 会构建失败） |
+| `ZCodeEditor`（1.2.0，走子路径 `@yuku123/z-frontend-common/code`） | 代码编辑器（CodeMirror 6 壳 + 语言注册表 + 自研 ANTLR(g4) 桥）：`{value, onChange, language, height, readOnly, placeholder, dark}` 受控组件；内置 sql/json/xml/yaml/java/javascript/groovy/lua/shell/properties/toml 与 **sql-antlr / json-antlr**（自研 g4 生成物：SQL 词法高亮 + JSON 全量语法探测）；`registerLanguage` / `getLanguage` / `DSL_TYPE_LANGUAGE` / `antlrHighlight` / `antlrLinter` 同路径导出。codemirror 全家 + antlr4 全量打进本子路径产物，不进扁平桶 |
 | `default`（桶） | `{AppLayout, StatusTag, defaultStatusMap, LoginPage, ErrorBoundary, request, authRequest, createRequest}` —— 0.1.1 形状原样，**8** 个成员 |
 
 ## AppLayout props
@@ -76,6 +77,7 @@ const MOCK_AUTH = { username: 'admin', password: '123456', user: { name: 'admin'
 
 ## 历史
 
+- `1.2.0`：新增 `./code` 代码编辑器子路径 —— `ZCodeEditor`（CodeMirror 6 壳）+ 语言注册表 + `defineAntlrLanguage` 式自研 g4 桥（antlr.js：ANTLR4 JavaScript target 生成物直接驱动「token 流高亮」与「parser 语法探测」，不依赖 Monarch/Lezer）。首批自研语法来自 z-util：SQLLexer（z-util-expr-sql，注释改 HIDDEN 通道的包内副本，grammars/ 留源）出 sql-antlr；JsonLexer+JsonParser（z-util-parser-json）出 json-antlr 全量语法探测。codemirror 全家 + antlr4 为本包 dependencies、全量打入本子路径产物，消费方零额外声明
 - `0.1.0 – 0.1.6`：早期形态（pre-§16），源码曾位于 `yuku123/z-opc` 仓的 `z-frontend-common/` 子目录
 - `0.2.x`：内嵌 react-dom 的失败尝试线，已废弃
 - 应急过渡：`z-opc-foundation/_shared/z-frontend-common-local/` vendoring（不入 git，1.0.0 发版后退役）
