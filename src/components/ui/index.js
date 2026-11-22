@@ -37,5 +37,7 @@ export {default as StatusBadge} from './StatusBadge'
 export {default as PagedTable} from './PagedTable'
 // ComponentDoc - 组件文档页（§7）：左侧 240px TOC + 右侧正文，各仓只提供 DOC.md
 export {default as ComponentDoc} from './ComponentDoc'
+// MenuTree - 统一左侧菜单树（§17，范本=z-cognition-portal nav，2026-11-23 CEO 裁定全 fleet 统一）
+export {default as MenuTree} from './MenuTree'
 
 export {brand, palette, neutral, radius, shadow, lift, space, fontSize, antdTheme} from './tokens'
