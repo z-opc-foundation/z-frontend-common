@@ -94,9 +94,9 @@ test('defaultCollapsed 收起分组且命中 has-active 圆点语义', () => {
 test('children 渲染子轨，父行带 chevron 与 aria-expanded', () => {
     const html = renderToStaticMarkup(createElement(MenuTree, { groups: GROUPS }));
     assert.match(html, /zfc-mt-subitems/);
-    // 默认展开 ⇒ 父行 chevron 无 is-closed 修饰
+    // 默认展开 ⇒ 父行 chevron 带 is-open（展开=向下），组头同样 is-open
     assert.match(html, /<button[^>]*title="外层"[^>]*aria-expanded="true"/);
-    assert.match(html, /class="zfc-mt-chevron" aria-hidden="true"/);
+    assert.match(html, /class="zfc-mt-chevron is-open" aria-hidden="true"/);
     // 子轨里 active 子项命中 is-active
     assert.match(html, /<a[^>]*class="zfc-mt-item is-active"[^>]*href="\/sub2"/);
 });

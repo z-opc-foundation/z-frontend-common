@@ -48,9 +48,8 @@ const MENU_TREE_CSS = `
 .zfc-mt-toggle:hover{color:var(--zfc-mt-ink)}
 .zfc-mt-group.has-active>.zfc-mt-toggle{color:var(--zfc-mt-primary-strong)}
 .zfc-mt-toggle:focus-visible,.zfc-mt-item:focus-visible{outline:2px solid rgba(0,82,217,.55);outline-offset:1px}
-.zfc-mt-chevron{margin-left:auto;display:inline-flex;opacity:.55;transition:transform .16s ease}
+.zfc-mt-chevron{margin-left:auto;display:inline-flex;opacity:.55;transform:rotate(0deg);transition:transform .16s ease}
 .zfc-mt-chevron.is-closed{transform:rotate(-90deg)}
-.zfc-mt-group.collapsed .zfc-mt-chevron{transform:rotate(-90deg)}
 .zfc-mt-active-dot{display:none;width:5px;height:5px;border-radius:50%;background:var(--zfc-mt-primary)}
 .zfc-mt-group.collapsed .zfc-mt-active-dot{display:inline-block}
 .zfc-mt-items{margin-left:23px}
@@ -89,6 +88,16 @@ function ChevronIcon() {
     )
 }
 
+/** chevron：open（展开）= 向下；closed = rotate(-90deg) 指右。基态必须显式 rotate(0deg)：WebKit 对 transform→none 的过渡会冻结在起始值，展开组会卡在 -90°。 */
+function Chevron({open}) {
+    return (
+        <span className={`zfc-mt-chevron${open ? ' is-open' : ' is-closed'}`}
+              aria-hidden="true">
+            <ChevronIcon/>
+        </span>
+    )
+}
+
 /**
  * 单行渲染。<a> 走 href，<button> 走 onClick，两者皆无（纯占位项）渲染 <div>。
  * 有 children 的行带 chevron：行自身 onClick 若存在则先执行再展开，否则点击即展开。
@@ -101,11 +110,7 @@ function ItemRow({item, open, onToggleChildren}) {
             {item.icon != null ? <span className="zfc-mt-ic">{item.icon}</span> : null}
             <span className="zfc-mt-text">{item.label}</span>
             {item.target ? <span className="zfc-mt-target-dot" aria-hidden="true"/> : null}
-            {hasChildren ? (
-                <span className={`zfc-mt-chevron${open ? '' : ' is-closed'}`} aria-hidden="true">
-                    <ChevronIcon/>
-                </span>
-            ) : null}
+            {hasChildren ? <Chevron open={open}/> : null}
         </>
     )
     const handleClick = hasChildren
@@ -219,7 +224,7 @@ export default function MenuTree({
                                 onClick={() => toggle(group.key)}>
                             <span>{group.title}</span>
                             {groupActive ? <span className="zfc-mt-active-dot" aria-hidden="true"/> : null}
-                            <span className="zfc-mt-chevron" aria-hidden="true"><ChevronIcon/></span>
+                            <Chevron open={!collapsed}/>
                         </button>
                         {!collapsed ? (
                             <div className="zfc-mt-items">
