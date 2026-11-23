@@ -22,7 +22,8 @@
  *          remark-gfm               ^4.0.1
  *          react-syntax-highlighter ^15.6.6
  */
-import {Fragment, createElement, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react'
+import {Fragment, createElement, useEffect, useId, useLayoutEffect, useMemo, useRef, useState} from 'react'
+import {Button, Tooltip} from 'antd'
 import {ReadOutlined} from '@ant-design/icons'
 import {useInRouterContext, useNavigate} from 'react-router-dom'
 import {antdTheme, brand, neutral, radius} from './tokens'
@@ -33,10 +34,11 @@ const TOC_WIDTH = 240          // §7 强制：左栏 240px
 const READ_LINE = 96           // 读线：正文容器顶部往下 96px 以内的章节算「当前章节」
 const SCROLL_OPTIONS = {behavior: 'smooth', block: 'start'}
 
-// 窄屏（<800px）表格横向滚动：窄屏下把表格撑到最小宽，列不会被挤扁
+// 表格和代码的横向滚动留在正文内；断点由可用容器宽度决定。
 const DOC_TABLE_CSS = `
-.zfc-doc-table-wrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-@media (max-width: 800px) { .zfc-doc-table-wrap > table { min-width: 520px; } }
+.zfc-doc-table-wrap { max-width: 100%; overflow-x: auto; overflow-wrap: normal; -webkit-overflow-scrolling: touch; }
+.zfc-doc.is-narrow .zfc-doc-table-wrap > table { min-width: 520px; }
+.zfc-doc article pre { max-width: 100%; overflow-x: auto; overflow-wrap: normal; }
 `
 
 /* ------------------------------------------------------------------ *
@@ -651,8 +653,27 @@ export default function ComponentDoc({
     const inRouter = useInRouterContext()
     const navigate = inRouter ? useNavigate() : null
 
+    const layoutRef = useRef(null)
     const contentRef = useRef(null)
     const tocRef = useRef(null)
+    const tocId = useId()
+    const [narrow, setNarrow] = useState(true)
+    const [tocExpanded, setTocExpanded] = useState(false)
+
+    useLayoutEffect(() => {
+        const layout = layoutRef.current
+        if (!layout) return undefined
+        // Leave at least 480px for the article, even when the app sidebar is open.
+        const measure = () => setNarrow(layout.getBoundingClientRect().width < Number(tocWidth) + 16 + 480)
+        measure()
+        const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null
+        observer?.observe(layout)
+        window.addEventListener('resize', measure)
+        return () => {
+            observer?.disconnect()
+            window.removeEventListener('resize', measure)
+        }
+    }, [tocWidth])
     const lockRef = useRef('')
     const lockTimerRef = useRef(null)
     const [activeId, setActiveId] = useState('')
@@ -735,7 +756,7 @@ export default function ComponentDoc({
     // TOC 当前项自动滚入可视区（选中项跑出视野时要能看见自己）
     useEffect(() => {
         const toc = tocRef.current
-        if (!toc || !activeId) return
+        if (!toc || !activeId || (narrow && !tocExpanded)) return
         const el = toc.querySelector(`[data-toc-id="${escapeAttr(activeId)}"]`)
         if (!el) return
         const tocRect = toc.getBoundingClientRect()
@@ -743,7 +764,7 @@ export default function ComponentDoc({
         if (elRect.top < tocRect.top + 24 || elRect.bottom > tocRect.bottom - 24) {
             el.scrollIntoView({block: 'nearest', behavior: 'smooth'})
         }
-    }, [activeId])
+    }, [activeId, narrow, tocExpanded])
 
     const findAnchor = (id) => {
         const root = contentRef.current
@@ -806,18 +827,20 @@ export default function ComponentDoc({
     }
 
     return (
-        <div style={{display: 'flex', flexDirection: 'column', minHeight: 0, flex: 1}}>
+        <div className={`zfc-doc${narrow ? ' is-narrow' : ''}`} style={{display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0, flex: 1}}>
             <style>{DOC_TABLE_CSS}</style>
             {title ? <PageHeader title={title}/> : null}
 
-            <div style={{display: 'flex', gap: 16, alignItems: 'flex-start', minHeight: 0}}>
-                {/* 左栏：240px TOC */}
+            <div ref={layoutRef} style={{display: 'flex', flexDirection: narrow ? 'column' : 'row', gap: 16, alignItems: 'flex-start', minWidth: 0, minHeight: 0}}>
+                {/* 单一目录：宽容器侧栏，窄容器可折叠，隐藏时不产生 tab 停靠点。 */}
                 <aside
                     ref={tocRef}
                     style={{
-                        width: tocWidth,
+                        width: narrow ? '100%' : tocWidth,
+                        boxSizing: 'border-box',
+                        minWidth: 0,
                         flexShrink: 0,
-                        position: 'sticky',
+                        position: narrow ? 'static' : 'sticky',
                         top: 12,
                         alignSelf: 'flex-start',
                         maxHeight: height,
@@ -828,20 +851,32 @@ export default function ComponentDoc({
                         borderRadius: radius.sm,
                     }}
                 >
-                    <div style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        fontSize: 12, color: neutral.textMuted, marginBottom: 8, padding: '0 4px',
-                    }}>
-                        <ReadOutlined/>
-                        <span style={{fontWeight: 600}}>本文目录</span>
-                    </div>
-                    <ul style={{listStyle: 'none', margin: 0, padding: 0}}>
+                    {narrow ? (
+                        <Button type="text" block icon={<ReadOutlined/>}
+                                style={{height: 'auto', minHeight: 32, whiteSpace: 'normal'}}
+                                aria-expanded={tocExpanded} aria-controls={tocId}
+                                onClick={() => setTocExpanded((expanded) => !expanded)}>
+                            {tocExpanded ? '收起本文目录' : '展开本文目录'}
+                        </Button>
+                    ) : (
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: 6,
+                            fontSize: 12, color: neutral.textMuted, marginBottom: 8, padding: '0 4px',
+                        }}>
+                            <ReadOutlined/>
+                            <span style={{fontWeight: 600}}>本文目录</span>
+                        </div>
+                    )}
+                    <ul id={tocId} hidden={narrow && !tocExpanded} aria-label="本文目录"
+                        style={{listStyle: 'none', margin: 0, padding: 0}}>
                         {tocItems.map((h) => {
                             const isActive = activeId === h.id
                             return (
                                 <li key={h.id} data-toc-id={h.id}>
+                                    <Tooltip title={h.text} trigger={['hover', 'focus']}>
                                     <a
                                         href={'#' + h.id}
+                                        aria-current={isActive ? 'location' : undefined}
                                         onClick={(e) => onTocClick(e, h.id)}
                                         style={{
                                             display: 'block',
@@ -862,6 +897,7 @@ export default function ComponentDoc({
                                     >
                                         {h.text}
                                     </a>
+                                    </Tooltip>
                                 </li>
                             )
                         })}
@@ -872,14 +908,18 @@ export default function ComponentDoc({
                 <article
                     ref={contentRef}
                     style={{
-                        flex: 1,
+                        flex: narrow ? 'none' : 1,
+                        width: narrow ? '100%' : undefined,
+                        boxSizing: 'border-box',
                         minWidth: 0,
                         background: neutral.surface,
                         border: `1px solid ${neutral.border}`,
                         borderRadius: radius.sm,
-                        padding: '24px 32px',
+                        padding: narrow ? '16px' : '24px 32px',
                         lineHeight: 1.75,
                         color: neutral.text,
+                        overflowWrap: 'anywhere',
+                        overflowX: 'auto',
                         overflowY: height === 'auto' ? 'visible' : 'auto',
                         maxHeight: height === 'auto' ? 'none' : height,
                     }}

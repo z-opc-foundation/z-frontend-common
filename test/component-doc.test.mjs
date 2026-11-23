@@ -211,6 +211,27 @@ test('宿主注册自己的渲染器后，ComponentDoc 改用它渲染', async (
     }
 });
 
+test('窄容器初始目录可访问且折叠，只渲染一份目录', async () => {
+    const html = await renderDoc(DOC);
+    assert.match(html, /aria-expanded="false" aria-controls="([^"]+)"/);
+    assert.match(html, /<ul[^>]*id="[^"]+"[^>]*hidden=""[^>]*aria-label="本文目录"/);
+    assert.equal([...html.matchAll(/data-toc-id=/g)].length, countH2(DOC));
+    assert.doesNotMatch(html, /<a[^>]*\stitle=/, '目录不应使用原生 title');
+    assert.match(html, /overflow-wrap:anywhere/);
+    assert.match(html, /overflow-x:auto/);
+});
+
+test('自定义渲染与高度不受响应式目录影响', async () => {
+    const html = await renderDoc('## 自定义', {
+        height: '360px',
+        renderMarkdown: ({components}) => createElement('section', {'data-custom': 'yes'}, components.h2({children: '自定义'})),
+    });
+    assert.match(html, /data-custom="yes"/);
+    assert.match(html, /max-height:360px/);
+    const auto = await renderDoc(DOC, {height: 'auto'});
+    assert.match(auto, /max-height:none/);
+});
+
 test('ui 扁平桶导出了 ComponentDoc', async () => {
     const fs = await import('node:fs');
     const uiIndex = fs.readFileSync(path.join(REPO_ROOT, 'src', 'components', 'ui', 'index.js'), 'utf8');
