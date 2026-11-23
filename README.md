@@ -3,9 +3,9 @@
 > z-opc-foundation 全仓共享前端基座 —— lead 008《前端开发规范》§1-§16 的唯一承载仓。
 
 工作区内 **46** 个 `*-suit` 工程通过同一份 AppLayout / LoginPage 获得一致的
-左菜单架子、登录流程与右上角用户组件；**40** 个 `*-component` 工程声明依赖本包
-（其中 **39** 个在源码里真的 import）。
-**改一处，全仓同步**。
+左菜单架子、登录流程与右上角用户组件；**41** 个 `*-component` 工程声明依赖本包
+（其中 **40** 个在源码里真的 import）。
+消费方更新依赖或使用工作区源码别名后，才能获得本仓的最新改动。
 
 ---
 
@@ -25,12 +25,12 @@
 
 | 导出 | 说明 |
 |------|------|
-| `AppLayout` | **升级**：§1 sider 双模式品牌区（暗主题显式白字 / 折叠 36×36 圆角图标 + Tooltip）、§11 selectedKey 最长菜单前缀、§12 sider 顶 `产品名@版本`、§15 Header 48px + 1px 下边线、§16 `appUser` 右上角下拉（profile + 退出登录，`loginPath` 按 `menuItems[0].key` 自动推导可覆盖） |
+| `AppLayout` | **升级**：认知风格 `MenuTree` + `SidebarShell`，分组与递归菜单、最长路由前缀选中、独立折叠把手及状态持久化；顶部展示品牌、版本提示及用户菜单；`loginPath` 按菜单内 `/home` 路径推导，可显式覆盖 |
 | `LoginPage` | **升级**：`mockAuth` 双模式 —— 传 `{username, password, user}` 走纯前端校验（CTC/SSO 接入前短期形态）；缺省走 `loginApi` 真实端点 |
 | `EmptyState` | **已实装**：`src/components/ui/EmptyState.jsx`（44×44 触控目标、默认标题「暂无数据」、可选 action 按钮），由扁平 ui 桶导出 |
 | `StatusTag` / `defaultStatusMap` | 0.1.1 契约原样保留 |
 | `ErrorBoundary` | 0.1.1 契约原样保留（antd Result 形态重绘） |
-| `createRequest(options)` | axios 实例工厂：`{baseURL='/api', timeout=10000, tokenKey='token', userInfoKey='userInfo', unauthorizedRedirect='/login'}`；40 个 `*-component` 工程声明依赖本包 |
+| `createRequest(options)` | axios 实例工厂：`{baseURL='/api', timeout=10000, tokenKey='token', userInfoKey='userInfo', unauthorizedRedirect='/login'}`；41 个 `*-component` 工程声明依赖本包 |
 | `request` / `authRequest` | 预建实例（`createRequest()` 双份，0.1.1 契约） |
 | `setupInterceptors` | 拦截器装配（Bearer token 注入 + 401 清凭跳登录 + 响应解包） |
 | `unwrapResponse` | **新增显式导出**：`{code, data}` 包装解包 / 裸数据透传（z-opc Spring MVC 统一返回体兼容） |

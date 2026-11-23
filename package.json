@@ -29,7 +29,7 @@
     "build": "vite build",
     "dev": "vite build --watch",
     "prepublishOnly": "vite build",
-    "test": "node --test test/"
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "@codemirror/lang-java": "^6.0.2",

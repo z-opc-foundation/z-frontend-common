@@ -14,17 +14,18 @@ import { useEffect, useState } from 'react'
  * SSR 下（无 document）自动跳过注入，只影响交互态不影响结构断言。
  *
  * @param {Object} props
- * @param {Array}  [props.topItems]  顶部无分组叶子项（如「首页」），元素见 MenuItem
+ * @param {Array}  [props.topItems]  顶部无分组项（如「首页」），元素见 MenuItem
  * @param {Array}  [props.groups]    分组列表，见 MenuTreeGroup
  * @param {boolean} [props.defaultCollapsed=false] 分组初始是否收起
  * @param {boolean} [props.autoExpandActive=true] active 项所在分组/父项自动展开
  * @param {string} [props.className] 追加到根节点
  * @param {Object} [props.style]    追加到根节点（可在这里覆盖 --zfc-mt-* 变量）
  *
- * MenuItem: { key, label, icon?, active?, title?, onClick?, href?, target?, children? }
- *   - href  ⇒ 渲染 <a>；onClick ⇒ 渲染 <button>；两者都无 ⇒ 渲染不可点的 <div>
- *   - children: MenuItem[] ⇒ 行尾出现 chevron、点击展开/收起（子轨仅一层嵌套）
- *   - target ⇒ 行尾琥珀圆点（外部目标标记）
+ * MenuItem: { key, label, icon?, active?, title?, onClick?, href?, target?, disabled?, children? }
+ *   - href ⇒ <a>；onClick ⇒ <button>；无操作的叶子 ⇒ 不可点的 <div>
+ *   - children: MenuItem[] ⇒ 递归子轨；有导航的父行与折叠按钮独立
+ *   - target ⇒ 行尾琥珀圆点（业务标记，不作为 HTML window name）
+ *   - HTTP(S)/协议相对 href 或显式 target="_blank" ⇒ 原生新标签链接，不调用路由 onClick
  * MenuTreeGroup: { key, title, items: MenuItem[] }
  */
 
@@ -39,7 +40,8 @@ const MENU_TREE_CSS = `
 .zfc-mt a.zfc-mt-item,.zfc-mt a.zfc-mt-item:hover{text-decoration:none}
 .zfc-mt-group+.zfc-mt-group{margin-top:8px;padding-top:2px;border-top:1px solid var(--zfc-mt-line)}
 .zfc-mt-label{display:flex;align-items:center;gap:8px;color:var(--zfc-mt-muted);font-size:14px;
-  font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:12px 12px 6px;white-space:nowrap}
+  font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:12px 12px 6px;white-space:normal}
+.zfc-mt-label>span:first-of-type{min-width:0;overflow-wrap:anywhere}
 .zfc-mt-label::before{content:"";width:3px;height:11px;border-radius:2px;background:var(--zfc-mt-line-strong);
   flex:0 0 auto;transition:background .16s ease}
 .zfc-mt-group.has-active>.zfc-mt-label::before{background:var(--zfc-mt-primary)}
@@ -47,27 +49,39 @@ const MENU_TREE_CSS = `
   font-family:inherit;appearance:none;border-radius:6px;transition:color .16s ease}
 .zfc-mt-toggle:hover{color:var(--zfc-mt-ink)}
 .zfc-mt-group.has-active>.zfc-mt-toggle{color:var(--zfc-mt-primary-strong)}
-.zfc-mt-toggle:focus-visible,.zfc-mt-item:focus-visible{outline:2px solid rgba(0,82,217,.55);outline-offset:1px}
-.zfc-mt-chevron{margin-left:auto;display:inline-flex;opacity:.55;transform:rotate(0deg);transition:transform .16s ease}
+.zfc-mt-toggle:focus-visible,.zfc-mt-item:focus-visible,.zfc-mt-disclosure:focus-visible{outline:2px solid rgba(0,82,217,.55);outline-offset:1px}
+.zfc-mt-chevron{margin-left:auto;display:inline-flex;flex:0 0 auto;opacity:.55;transform:rotate(0deg);transition:transform .16s ease}
 .zfc-mt-chevron.is-closed{transform:rotate(-90deg)}
 .zfc-mt-active-dot{display:none;width:5px;height:5px;border-radius:50%;background:var(--zfc-mt-primary)}
 .zfc-mt-group.collapsed .zfc-mt-active-dot{display:inline-block}
 .zfc-mt-items{margin-left:23px}
-.zfc-mt-item{position:relative;display:flex;align-items:center;gap:10px;height:34px;padding:6px 10px;
+.zfc-mt-item{position:relative;display:flex;align-items:center;gap:10px;min-height:34px;padding:6px 10px;
   margin:1px 0;border:0;border-radius:4px;background:transparent;color:var(--zfc-mt-ink-2);
-  font-size:15px;font-weight:400;white-space:nowrap;width:100%;cursor:pointer;text-align:left;
+  font-size:15px;font-weight:400;line-height:22px;white-space:normal;width:100%;box-sizing:border-box;cursor:pointer;text-align:left;
   font-family:inherit;transition:background .16s ease,color .16s ease}
 .zfc-mt-item .zfc-mt-ic{display:inline-flex;width:18px;height:18px;opacity:.92;flex:0 0 auto}
-.zfc-mt-item:hover{background:var(--zfc-mt-surface-3);color:var(--zfc-mt-ink)}
+.zfc-mt-item:not(.is-disabled):hover{background:var(--zfc-mt-surface-3);color:var(--zfc-mt-ink)}
 .zfc-mt-item.is-active{color:var(--zfc-mt-primary-strong);background:var(--zfc-mt-surface-3)}
-.zfc-mt-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.zfc-mt-text{flex:1;min-width:0;overflow-wrap:anywhere}
 .zfc-mt-target-dot{width:5px;height:5px;border-radius:50%;background:var(--zfc-mt-amber);opacity:.8;flex:0 0 auto}
 .zfc-mt-subitems{margin-left:22px;padding-left:12px;border-left:1px solid var(--zfc-mt-line)}
-.zfc-mt-subitems .zfc-mt-item{height:31px;margin:1px 0;padding:0 9px;font-size:14px;gap:9px;
+.zfc-mt-subitems .zfc-mt-item{min-height:31px;margin:1px 0;padding:0 9px;font-size:14px;gap:9px;
   color:var(--zfc-mt-muted);border-radius:7px}
 .zfc-mt-subitems .zfc-mt-item .zfc-mt-ic{width:14px;height:14px;opacity:.82}
-.zfc-mt-subitems .zfc-mt-item:hover{color:var(--zfc-mt-ink);background:var(--zfc-mt-surface-3)}
+.zfc-mt-subitems .zfc-mt-item:not(.is-disabled):hover{color:var(--zfc-mt-ink);background:var(--zfc-mt-surface-3)}
 .zfc-mt-subitems .zfc-mt-item.is-active{color:var(--zfc-mt-primary-strong);background:var(--zfc-mt-surface-3)}
+.zfc-mt-row{position:relative}
+.zfc-mt-row>.zfc-mt-item{padding-right:36px}
+.zfc-mt-disclosure{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;padding:0;border:0;border-radius:4px;
+  background:transparent;color:var(--zfc-mt-ink-2);cursor:pointer}
+.zfc-mt-disclosure .zfc-mt-chevron{margin:0}
+.zfc-mt-disclosure:not(:disabled):hover{background:var(--zfc-mt-surface-3);color:var(--zfc-mt-ink)}
+.zfc-mt-item.is-disabled,.zfc-mt-disclosure:disabled{opacity:.45;cursor:not-allowed}
+.zfc-mt div.zfc-mt-item{cursor:default}
+@media (prefers-reduced-motion:reduce){
+  .zfc-mt-toggle,.zfc-mt-label::before,.zfc-mt-item,.zfc-mt-chevron{transition:none}
+}
 `
 
 function ensureStyles() {
@@ -99,37 +113,99 @@ function Chevron({open}) {
     )
 }
 
-/**
- * 单行渲染。<a> 走 href，<button> 走 onClick，两者皆无（纯占位项）渲染 <div>。
- * 有 children 的行带 chevron：行自身 onClick 若存在则先执行再展开，否则点击即展开。
- */
-function ItemRow({item, open, onToggleChildren}) {
+/** 导航与 disclosure 用兄弟节点，保留原生链接/按钮的 Tab、Enter、Space 行为。 */
+function ItemRow({item, showIcon, open, onToggleChildren}) {
     const hasChildren = Array.isArray(item.children) && item.children.length > 0
-    const cls = `zfc-mt-item${item.active ? ' is-active' : ''}`
+    const hasNavigation = Boolean(item.href || item.onClick)
+    const split = hasChildren && hasNavigation
+    const newTab = Boolean(item.href && (/^(?:https?:)?\/\//i.test(item.href.trim()) || item.target === '_blank'))
+    const title = item.title || (typeof item.label === 'string' ? item.label : undefined)
+    const cls = `zfc-mt-item${item.active ? ' is-active' : ''}${item.disabled ? ' is-disabled' : ''}`
+    const toggle = (event) => {
+        event.preventDefault()
+        event.stopPropagation()
+        if (!item.disabled) onToggleChildren()
+    }
+    const onDisclosureKeyDown = (event) => {
+        if ((event.key === 'ArrowRight' && !open) || (event.key === 'ArrowLeft' && open)) toggle(event)
+    }
     const body = (
         <>
-            {item.icon != null ? <span className="zfc-mt-ic">{item.icon}</span> : null}
+            {showIcon ? <span className="zfc-mt-ic" aria-hidden="true">{item.icon}</span> : null}
             <span className="zfc-mt-text">{item.label}</span>
             {item.target ? <span className="zfc-mt-target-dot" aria-hidden="true"/> : null}
-            {hasChildren ? <Chevron open={open}/> : null}
+            {hasChildren && !split ? <Chevron open={open}/> : null}
         </>
     )
-    const handleClick = hasChildren
-        ? (e) => {
-            if (item.onClick) item.onClick(e)
-            onToggleChildren()
+    const handleClick = (event) => {
+        if (item.disabled) {
+            event.preventDefault()
+            event.stopPropagation()
+            return
         }
-        : item.onClick
-    const extra = hasChildren ? {'aria-expanded': open} : {}
+        if (newTab) {
+            event.preventDefault()
+            event.stopPropagation()
+            window.open(item.href, '_blank', 'noopener,noreferrer')
+            return
+        }
+        if (hasNavigation) item.onClick?.(event)
+        else if (hasChildren) toggle(event)
+    }
+    const extra = {
+        'aria-current': item.active ? 'page' : undefined,
+        'aria-disabled': item.disabled || undefined,
+        ...(hasChildren && !split ? { 'aria-expanded': open, onKeyDown: onDisclosureKeyDown } : {}),
+    }
+    let row
     if (item.href) {
-        return <a className={cls} href={item.href} title={item.title || item.label}
-                  onClick={handleClick} {...extra}>{body}</a>
+        row = <a className={cls} href={item.disabled ? undefined : item.href} title={title}
+                 role={item.disabled ? 'link' : undefined} tabIndex={item.disabled ? -1 : undefined}
+                 target={newTab ? '_blank' : undefined} rel={newTab ? 'noopener noreferrer' : undefined}
+                 onClick={handleClick} {...extra}>{body}</a>
+    } else if (item.onClick || hasChildren) {
+        row = <button type="button" className={cls} title={title} disabled={item.disabled}
+                      onClick={handleClick} {...extra}>{body}</button>
+    } else {
+        row = <div className={cls} title={title} {...extra}>{body}</div>
     }
-    if (item.onClick || hasChildren) {
-        return <button type="button" className={cls} title={item.title || item.label}
-                       onClick={handleClick} {...extra}>{body}</button>
+    if (!split) return row
+    const toggleLabel = `${open ? '收起' : '展开'}${title || '子菜单'}`
+    return (
+        <div className="zfc-mt-row">
+            {row}
+            <button type="button" className="zfc-mt-disclosure" disabled={item.disabled}
+                    title={toggleLabel} aria-label={toggleLabel} aria-expanded={open}
+                    onClick={toggle} onKeyDown={onDisclosureKeyDown}>
+                <Chevron open={open}/>
+            </button>
+        </div>
+    )
+}
+
+/** 同时收集默认展开项和 active 的完整归属链（含 topItems）。 */
+function collectExpansion(topItems, groups) {
+    const all = new Set()
+    const active = new Set()
+    const selected = []
+    const visit = (items) => {
+        let hit = false
+        for (const item of items) {
+            const children = item.children || []
+            if (children.length) all.add(item.key)
+            const childActive = visit(children)
+            if (item.active) selected.push(item.key)
+            if (childActive) active.add(item.key)
+            if (item.active || childActive) hit = true
+        }
+        return hit
     }
-    return <div className={cls} title={item.title || item.label}>{body}</div>
+    visit(topItems)
+    for (const group of groups) {
+        all.add(group.key)
+        if (visit(group.items || [])) active.add(group.key)
+    }
+    return { all, active, selected }
 }
 
 export default function MenuTree({
@@ -142,45 +218,21 @@ export default function MenuTree({
 }) {
     ensureStyles()
 
-    const initOpen = () => {
-        const s = new Set()
-        if (!defaultCollapsed) {
-            groups.forEach((g) => {
-                s.add(g.key)
-                ;(g.items || []).forEach((it) => {
-                    if (it.children && it.children.length) s.add(it.key)
-                })
-            })
-        }
-        return s
-    }
-    const [openKeys, setOpenKeys] = useState(initOpen)
+    const expansion = collectExpansion(topItems, groups)
+    const [openKeys, setOpenKeys] = useState(() => new Set([
+        ...(!defaultCollapsed ? expansion.all : []),
+        ...(autoExpandActive ? expansion.active : []),
+    ]))
 
-    // 消费方数据多为 useMemo 重建的引用，这里收敛成字符串做 effect 依赖
-    const activeSignature = groups
-        .map((g) => g.key + ':' + (g.items || []).map((it) =>
-            it.key + (it.active ? '!' : '') +
-            (it.children || []).map((c) => c.key + (c.active ? '!' : '')).join(',')
-        ).join(',')).join('|')
-
+    // 只展开选中项的祖先，父项自身导航不能改变其子树折叠状态。
+    const activeSignature = JSON.stringify({ ancestors: [...expansion.active], selected: expansion.selected })
     useEffect(() => {
         if (!autoExpandActive) return
+        const activeKeys = JSON.parse(activeSignature).ancestors
         setOpenKeys((prev) => {
-            const next = new Set(prev)
-            let changed = false
-            const add = (k) => { if (!next.has(k)) { next.add(k); changed = true } }
-            groups.forEach((g) => {
-                const items = g.items || []
-                const hit = items.some((it) =>
-                    it.active || (it.children || []).some((c) => c.active))
-                if (hit) add(g.key)
-                items.forEach((it) => {
-                    if (it.active || (it.children || []).some((c) => c.active)) add(it.key)
-                })
-            })
-            return changed ? next : prev
+            const next = new Set([...prev, ...activeKeys])
+            return next.size === prev.size ? prev : next
         })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeSignature, autoExpandActive])
 
     const toggle = (key) => {
@@ -192,30 +244,27 @@ export default function MenuTree({
         })
     }
 
-    const renderItem = (item) => {
-        const hasChildren = Array.isArray(item.children) && item.children.length > 0
-        if (!hasChildren) {
-            return <ItemRow key={item.key} item={item}/>
-        }
-        const open = openKeys.has(item.key)
-        return (
-            <div key={item.key}>
-                <ItemRow item={item} open={open} onToggleChildren={() => toggle(item.key)}/>
-                {!open ? null : (
-                    <div className="zfc-mt-subitems">
-                        {item.children.map((c) => <ItemRow key={c.key} item={c}/>)}
-                    </div>
-                )}
-            </div>
-        )
+    const renderItems = (items) => {
+        const showIcon = items.some((item) => item.icon != null)
+        return items.map((item) => {
+            const hasChildren = Array.isArray(item.children) && item.children.length > 0
+            const open = openKeys.has(item.key)
+            return (
+                <div key={item.key}>
+                    <ItemRow item={item} showIcon={showIcon} open={open} onToggleChildren={() => toggle(item.key)}/>
+                    {hasChildren && open ? (
+                        <div className="zfc-mt-subitems">{renderItems(item.children)}</div>
+                    ) : null}
+                </div>
+            )
+        })
     }
 
     return (
         <nav className={`zfc-mt${className ? ' ' + className : ''}`} style={style}>
-            {topItems.map(renderItem)}
+            {renderItems(topItems)}
             {groups.map((group) => {
-                const groupActive = (group.items || []).some((it) =>
-                    it.active || (it.children || []).some((c) => c.active))
+                const groupActive = expansion.active.has(group.key)
                 const collapsed = !openKeys.has(group.key)
                 return (
                     <div key={group.key}
@@ -229,7 +278,7 @@ export default function MenuTree({
                         </button>
                         {!collapsed ? (
                             <div className="zfc-mt-items">
-                                {(group.items || []).map(renderItem)}
+                                {renderItems(group.items || [])}
                             </div>
                         ) : null}
                     </div>

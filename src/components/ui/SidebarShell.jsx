@@ -31,7 +31,7 @@ const SIDEBAR_SHELL_CSS = `
   transition:width .18s ease,min-width .18s ease}
 .zfc-sbs.is-collapsed{border-right:none}
 .zfc-sbs-title{padding:14px 12px 4px;font-size:13px;font-weight:600;letter-spacing:.01em;
-  color:var(--zfc-sbs-ink,rgba(0,0,0,.9))}
+  color:var(--zfc-sbs-ink,rgba(0,0,0,.9));overflow-wrap:anywhere}
 .zfc-sbs-body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .zfc-sbs.is-collapsed .zfc-sbs-body{display:none}
 .zfc-sbs-handle{position:absolute;top:50%;right:-9px;transform:translateY(-50%);z-index:30;
@@ -42,8 +42,10 @@ const SIDEBAR_SHELL_CSS = `
   transition:background .15s ease,color .15s ease,box-shadow .15s ease}
 .zfc-sbs-handle:hover{background:var(--zfc-sbs-primary,#0052d9);color:#fff;
   border-color:var(--zfc-sbs-primary,#0052d9)}
+.zfc-sbs-handle:focus-visible{outline:2px solid var(--zfc-sbs-primary,#0052d9);outline-offset:2px}
 .zfc-sbs.is-collapsed .zfc-sbs-handle{right:auto;left:0;border-right:1px solid var(--zfc-sbs-line,#e2e4e8);
   border-left:none;border-radius:0 6px 6px 0}
+@media (prefers-reduced-motion:reduce){.zfc-sbs,.zfc-sbs-handle{transition:none}}
 `
 
 function ensureStyles() {
@@ -67,17 +69,20 @@ export default function SidebarShell({
     ensureStyles()
 
     const [collapsed, setCollapsed] = useState(() => {
-        if (!storageKey || typeof localStorage === 'undefined') return defaultCollapsed
+        if (!storageKey) return defaultCollapsed
         try {
-            return localStorage.getItem(storageKey) === '1'
+            if (typeof localStorage === 'undefined') return defaultCollapsed
+            const saved = localStorage.getItem(storageKey)
+            return saved === '1' ? true : saved === '0' ? false : defaultCollapsed
         } catch (e) {
             return defaultCollapsed
         }
     })
 
     useEffect(() => {
-        if (!storageKey || typeof localStorage === 'undefined') return
+        if (!storageKey) return
         try {
+            if (typeof localStorage === 'undefined') return
             localStorage.setItem(storageKey, collapsed ? '1' : '0')
         } catch (e) {
             /* Safari 无痕模式禁写 localStorage —— 折叠态退化为不持久化 */
@@ -91,8 +96,8 @@ export default function SidebarShell({
             className={`zfc-sbs${collapsed ? ' is-collapsed' : ''}${className ? ' ' + className : ''}`}
             style={{ width: collapsed ? 0 : width, minWidth: collapsed ? 0 : width, ...style }}
         >
-            {title ? <div className="zfc-sbs-title">{title}</div> : null}
-            <div className="zfc-sbs-body">{children}</div>
+            {title && !collapsed ? <div className="zfc-sbs-title">{title}</div> : null}
+            <div className="zfc-sbs-body" hidden={collapsed}>{children}</div>
             <button
                 type="button"
                 className="zfc-sbs-handle"

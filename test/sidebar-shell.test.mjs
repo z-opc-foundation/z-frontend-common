@@ -81,6 +81,24 @@ test('壳里不渲染任何品牌图标位（顶部只放菜单）', () => {
     assert.doesNotMatch(html, /<svg/);
 });
 
+test('无持久化记录时遵守 defaultCollapsed，已有记录优先', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+    try {
+        for (const [saved, expected] of [[null, true], ['invalid', true], ['1', true], ['0', false]]) {
+            Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: { getItem: () => saved } });
+            const html = renderToStaticMarkup(createElement(SidebarShell, {
+                storageKey: 'sidebar-test', defaultCollapsed: true, title: '侧栏标题',
+            }, '菜单内容'));
+            assert.equal(html.includes('zfc-sbs is-collapsed'), expected);
+            assert.equal(html.includes('class="zfc-sbs-title"'), !expected);
+            assert.equal(html.includes('hidden=""'), expected);
+        }
+    } finally {
+        if (descriptor) Object.defineProperty(globalThis, 'localStorage', descriptor);
+        else delete globalThis.localStorage;
+    }
+});
+
 test('把手贴分隔带：展开跨线、收起贴内容左缘', () => {
     const src = fs.readFileSync(
         path.join(REPO_ROOT, 'src/components/ui/SidebarShell.jsx'),
