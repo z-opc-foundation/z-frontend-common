@@ -39,5 +39,7 @@ export {default as PagedTable} from './PagedTable'
 export {default as ComponentDoc} from './ComponentDoc'
 // MenuTree - 统一左侧菜单树（§17，范本=z-cognition-portal nav，2026-11-23 CEO 裁定全 fleet 统一）
 export {default as MenuTree} from './MenuTree'
+// SidebarShell - 统一左侧栏外壳（§17）：收起把手贴在左菜单与右面板之间的分隔带上，顶部不设品牌图标
+export {default as SidebarShell} from './SidebarShell'
 
 export {brand, palette, neutral, radius, shadow, lift, space, fontSize, antdTheme} from './tokens'

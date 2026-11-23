@@ -88,7 +88,8 @@ function ChevronIcon() {
     )
 }
 
-/** chevron：open（展开）= 向下；closed = rotate(-90deg) 指右。基态必须显式 rotate(0deg)：WebKit 对 transform→none 的过渡会冻结在起始值，展开组会卡在 -90°。 */
+/** chevron：open（展开）= 向下；closed = rotate(-90deg) 指右。基态必须显式 rotate(0deg)：
+ * WebKit 对「transform 过渡到 none」会冻结在起始值，展开组会卡在 -90°（2026-11-23 真机钉死）。 */
 function Chevron({open}) {
     return (
         <span className={`zfc-mt-chevron${open ? ' is-open' : ' is-closed'}`}

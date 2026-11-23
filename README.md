@@ -15,7 +15,7 @@
 |------|-----|
 | 仓 | `z-opc-foundation/z-frontend-common`（本仓） |
 | npm 包 | `@yuku123/z-frontend-common`（scope 沿用 yuku123，与 0.1.x/0.2.x 旧线连续） |
-| 当前版本 | `1.2.0`（`package.json` 现读） —— 1.0 语义：§1-§16 规范化起点；1.1.x 在其上追加扁平 ui 组件桶；1.2.0 追加 `./code` 代码编辑器子路径（ZCodeEditor + 自研 g4 语法桥）。0.1.x 是 pre-§16 形态；0.2.x 内嵌 react-dom 已废弃 |
+| 当前版本 | `1.3.0`（`package.json` 现读） —— 1.0 语义：§1-§16 规范化起点；1.1.x 在其上追加扁平 ui 组件桶；1.2.0 追加 `./code` 代码编辑器子路径（ZCodeEditor + 自研 g4 语法桥）；1.3.0 追加 §17 统一侧栏件（MenuTree + SidebarShell）。0.1.x 是 pre-§16 形态；0.2.x 内嵌 react-dom 已废弃 |
 | 技术栈 | React 19 + antd 6 + react-router-dom 7 + Vite 6（lead 005 §3.0 版本线单一尺子） |
 | 产物 | ESM **4 入口**（`formats: ['es']`）：`dist/index.js`（主桶）+ `dist/ui.js`（扁平 ui 桶）+ `dist/ui-echarts.js`（`ui/echarts` 子路径）+ `dist/code.js`（`./code` 代码编辑器子路径，CodeMirror 6 + 自研 g4 语法桥全量打入） |
 | 打包策略 | external 精确 **9** 个包 + **1** 条前缀规则（`echarts/*`）：react / react-dom / react-dom/client / react/jsx-runtime / react-router-dom / antd / @ant-design/icons / axios / echarts |
@@ -34,7 +34,7 @@
 | `request` / `authRequest` | 预建实例（`createRequest()` 双份，0.1.1 契约） |
 | `setupInterceptors` | 拦截器装配（Bearer token 注入 + 401 清凭跳登录 + 响应解包） |
 | `unwrapResponse` | **新增显式导出**：`{code, data}` 包装解包 / 裸数据透传（z-opc Spring MVC 统一返回体兼容） |
-| `ui` 扁平桶（`export *`） | **1.1.x 追加**：17 个 UI 组件文件导出 **20** 个具名（`TableToolbar` 同时导出 `RefreshButton`；`useListFilter` 同时导出纯函数 `filterRows`）+ **9** 个 design token（`brand` / `palette` / `neutral` / `radius` / `shadow` / `lift` / `space` / `fontSize` / `antdTheme`）= **29** 个具名导出 |
+| `ui` 扁平桶（`export *`） | **1.1.x 追加**：18 个 UI 组件文件导出 **21** 个具名（`TableToolbar` 同时导出 `RefreshButton`；`useListFilter` 同时导出纯函数 `filterRows`）+ **9** 个 design token（`brand` / `palette` / `neutral` / `radius` / `shadow` / `lift` / `space` / `fontSize` / `antdTheme`）= **30** 个具名导出 |
 | `EChartsChart` | 走子路径 `@yuku123/z-frontend-common/ui/echarts`（不进扁平桶：让不画图的域解析 `echarts/core` 会构建失败） |
 | `ZCodeEditor`（1.2.0，走子路径 `@yuku123/z-frontend-common/code`） | 代码编辑器（CodeMirror 6 壳 + 语言注册表 + 自研 ANTLR(g4) 桥）：`{value, onChange, language, height, readOnly, placeholder, dark}` 受控组件；内置 sql/json/xml/yaml/java/javascript/groovy/lua/shell/properties/toml 与 **sql-antlr / json-antlr**（自研 g4 生成物：SQL 词法高亮 + JSON 全量语法探测）；`registerLanguage` / `getLanguage` / `DSL_TYPE_LANGUAGE` / `antlrHighlight` / `antlrLinter` 同路径导出。codemirror 全家 + antlr4 全量打进本子路径产物，不进扁平桶 |
 | `default`（桶） | `{AppLayout, StatusTag, defaultStatusMap, LoginPage, ErrorBoundary, request, authRequest, createRequest}` —— 0.1.1 形状原样，**8** 个成员 |
