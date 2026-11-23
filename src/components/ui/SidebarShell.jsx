@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
  *
  * @param {Object} props
  * @param {React.ReactNode} [props.children] 菜单内容（通常是 MenuTree）
+ * @param {string}  [props.title]              侧栏顶部标题（纯文字，无图标）
  * @param {number} [props.width=220]          展开态侧栏宽度
  * @param {boolean} [props.defaultCollapsed=false] 初始是否收起
  * @param {string}  [props.storageKey]        折叠态持久化键（'1'/'0'）
@@ -29,6 +30,8 @@ const SIDEBAR_SHELL_CSS = `
   background:var(--zfc-sbs-bg,#f7f8fa);border-right:1px solid var(--zfc-sbs-line,#e2e4e8);
   transition:width .18s ease,min-width .18s ease}
 .zfc-sbs.is-collapsed{border-right:none}
+.zfc-sbs-title{padding:14px 12px 4px;font-size:13px;font-weight:600;letter-spacing:.01em;
+  color:var(--zfc-sbs-ink,rgba(0,0,0,.9))}
 .zfc-sbs-body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .zfc-sbs.is-collapsed .zfc-sbs-body{display:none}
 .zfc-sbs-handle{position:absolute;top:50%;right:-9px;transform:translateY(-50%);z-index:30;
@@ -54,6 +57,7 @@ function ensureStyles() {
 
 export default function SidebarShell({
     children,
+    title,
     width = 220,
     defaultCollapsed = false,
     storageKey,
@@ -87,6 +91,7 @@ export default function SidebarShell({
             className={`zfc-sbs${collapsed ? ' is-collapsed' : ''}${className ? ' ' + className : ''}`}
             style={{ width: collapsed ? 0 : width, minWidth: collapsed ? 0 : width, ...style }}
         >
+            {title ? <div className="zfc-sbs-title">{title}</div> : null}
             <div className="zfc-sbs-body">{children}</div>
             <button
                 type="button"

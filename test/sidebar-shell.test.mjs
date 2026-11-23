@@ -62,6 +62,16 @@ test('收起态：宽度归零 + 把手翻成「展开侧栏」', () => {
     assert.match(html, /›/);
 });
 
+test('标题槽是纯文字（无图标），不带 title 时不渲染', () => {
+    const withTitle = renderToStaticMarkup(
+        createElement(SidebarShell, { title: '研发工作台' }, '菜单')
+    );
+    assert.match(withTitle, /class="zfc-sbs-title">研发工作台</);
+    assert.doesNotMatch(withTitle, /<svg/);
+    const without = renderToStaticMarkup(createElement(SidebarShell, null, '菜单'));
+    assert.doesNotMatch(without, /zfc-sbs-title/);
+});
+
 test('壳里不渲染任何品牌图标位（顶部只放菜单）', () => {
     const html = renderToStaticMarkup(
         createElement(SidebarShell, { width: 220 }, createElement('nav', null, '菜单'))
