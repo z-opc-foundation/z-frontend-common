@@ -1,6 +1,6 @@
 import { Avatar, Button, Dropdown, Spin, Tooltip } from 'antd'
 import { DownOutlined, LoginOutlined } from '@ant-design/icons'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, useHref, useLocation, useNavigate } from 'react-router-dom'
 import MenuTree from '../ui/MenuTree.jsx'
 import SidebarShell from '../ui/SidebarShell.jsx'
 
@@ -29,6 +29,11 @@ export function AppLayout({
 }) {
     const navigate = useNavigate()
     const location = useLocation()
+    // Native links include the router base/hash; navigate() still takes logical paths.
+    const routerRoot = useHref('/')
+    const anchorHref = (href) => routePath(href)
+        ? `${routerRoot.replace(/\/?$/, '/')}${href.slice(1)}`
+        : href
     const items = collectItems(menuItems)
     const selectedItem = items
         .filter((item) => item.type !== 'group' && item.type !== 'divider' && routePath(item.key))
@@ -48,7 +53,7 @@ export function AppLayout({
             title: item.title,
             disabled: item.disabled,
             active: item === selectedItem,
-            href,
+            href: anchorHref(href),
             target: item.target,
             children: item.children?.filter((child) => child && child.type !== 'divider')
                 .map((child) => toTreeItem(child, [...ancestors, item.key])),
@@ -56,7 +61,7 @@ export function AppLayout({
                 if (item.disabled) return
                 item.onClick?.({ key: item.key, keyPath: [item.key, ...ancestors.slice().reverse()], domEvent: event })
                 if (event.defaultPrevented) return
-                if (href && routePath(href) && item.target !== '_blank'
+                if (href && routePath(href) && item.target !== '_blank' && event.button === 0
                     && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
                     event.preventDefault()
                     navigate(href)
@@ -71,7 +76,7 @@ export function AppLayout({
         items: (group.children || []).filter((item) => item && item.type !== 'divider').map((item) => toTreeItem(item)),
     }))
     const home = items.find((item) => routePath(item.key)?.endsWith('/home'))
-    const resolvedLoginPath = loginPath || (home ? `${routePath(home.key).slice(0, -4)}login` : '/login')
+    const resolvedLoginPath = loginPath ?? anchorHref(home ? `${routePath(home.key).slice(0, -4)}login` : '/login')
 
     return (
         <div style={{ height: '100dvh', minHeight: 280, display: 'flex', flexDirection: 'column', background: '#fff', color: '#172033' }}>
