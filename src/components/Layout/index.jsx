@@ -22,6 +22,8 @@ export function AppLayout({
     appIcon,
     appUser,
     loginPath,
+    tokenKey = 'token',
+    userInfoKey = 'userInfo',
     headerExtra,
     loading = false,
 }) {
@@ -93,8 +95,8 @@ export function AppLayout({
                                     { type: 'divider' },
                                     {
                                         key: 'logout', label: '退出登录', onClick: () => {
-                                            localStorage.removeItem('token')
-                                            localStorage.removeItem('userInfo')
+                                            localStorage.removeItem(tokenKey)
+                                            localStorage.removeItem(userInfoKey)
                                             window.location.href = resolvedLoginPath
                                         },
                                     },

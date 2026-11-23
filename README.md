@@ -49,7 +49,9 @@
     appVersion="1.0.5"            // §12：展开态渲染 z-vector@1.0.5（不要 "v" 前缀）
     appIcon={{icon, color, label}} // §1：折叠态 36×36 圆角色板 + Tooltip
     appUser={{name, role}}        // §16：右上角 Avatar+name+DownOutlined 下拉
-    loginPath="/z-vector/login"   // 可选，缺省按 menuItems[0].key 自动推导 /<产品>/login
+    loginPath="/z-vector/login"   // 可选，缺省按菜单中的 /home 路径推导
+    tokenKey="token"             // 与 createRequest 使用同一登录凭据键
+    userInfoKey="userInfo"       // 与登录页使用同一用户信息键
     headerExtra={<.../>}          // Header 右侧追加内容（版本号别放这，§12）
     loading={false}               // 菜单区 loading 占位
 />
