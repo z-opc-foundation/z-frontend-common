@@ -41,5 +41,7 @@ export {default as ComponentDoc} from './ComponentDoc'
 export {default as MenuTree} from './MenuTree'
 // SidebarShell - 统一左侧栏外壳（§17）：收起把手贴在左菜单与右面板之间的分隔带上，顶部不设品牌图标
 export {default as SidebarShell} from './SidebarShell'
+// ProcessTimeline - 对话过程时间线（§17，Codex 风格）：组头 + 步骤链，宿主喂 group/step 结构
+export {default as ProcessTimeline} from './ProcessTimeline'
 
 export {brand, palette, neutral, radius, shadow, lift, space, fontSize, antdTheme} from './tokens'
