@@ -27,7 +27,7 @@ const STYLE_ID = 'zfc-sidebarshell-style'
 
 const SIDEBAR_SHELL_CSS = `
 .zfc-sbs{position:relative;flex:0 0 auto;display:flex;flex-direction:column;overflow:visible;
-  background:var(--zfc-sbs-bg,#f7f8fa);border-right:1px solid var(--zfc-sbs-line,#e2e4e8);
+  background:var(--zfc-sbs-bg,#f3f3f3);border-right:1px solid var(--zfc-sbs-line,#e2e4e8);
   transition:width .18s ease,min-width .18s ease}
 .zfc-sbs.is-collapsed{border-right:none}
 .zfc-sbs-title{padding:14px 12px 4px;font-size:13px;font-weight:600;letter-spacing:.01em;
@@ -38,8 +38,8 @@ const SIDEBAR_SHELL_CSS = `
   width:18px;height:36px;border:1px solid var(--zfc-sbs-line,#e2e4e8);border-right:none;
   border-radius:6px 0 0 6px;background:#fff;color:var(--zfc-sbs-ink,rgba(0,0,0,.6));
   cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;
-  padding:0;box-shadow:-2px 0 8px rgba(0,0,0,.06);
-  transition:background .15s ease,color .15s ease,box-shadow .15s ease}
+  padding:0;box-shadow:none;
+  transition:background .15s ease,color .15s ease}
 .zfc-sbs-handle:hover{background:var(--zfc-sbs-primary,#0052d9);color:#fff;
   border-color:var(--zfc-sbs-primary,#0052d9)}
 .zfc-sbs-handle:focus-visible{outline:2px solid var(--zfc-sbs-primary,#0052d9);outline-offset:2px}

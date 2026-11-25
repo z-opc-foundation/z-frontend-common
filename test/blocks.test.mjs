@@ -62,18 +62,21 @@ test('浮层是全站唯一带阴影的地方，且阴影值固定', () => {
     const overlay = allRules.find((r) => r.selector === '.zfc-overlay');
     assert.ok(overlay, '缺 .zfc-overlay 规则');
     assert.match(overlay.body, /box-shadow\s*:\s*var\(--zfc-overlay-shadow\)/);
-    assert.match(css, /--zfc-overlay-shadow:\s*0 14px 34px rgba\(15,\s*27,\s*45,\s*\.14\)/);
+    assert.match(css, /--zfc-overlay-shadow:\s*0 14px 34px rgba\(15,\s*27,\s*45,\s*0?\.14\)/);
 });
 
-test('token 全部用 --zfc-* 前缀，且优先吃宿主自有 token', () => {
+test('token 全部用 --zfc-* 前缀，且直接持有范本值（不做 var() 间接引用）', () => {
     const decls = [...css.matchAll(/^\s*(--[a-z0-9-]+)\s*:/gm)].map((m) => m[1]);
     const rootBlock = css.slice(css.indexOf(':root'), css.indexOf('}'));
     for (const name of decls) {
         assert.match(name, /^--zfc-/, `token ${name} 未使用 --zfc-* 前缀`);
     }
-    assert.ok(rootBlock.includes('--zfc-line: var(--line, #e2e4e8)'), '--zfc-line 未优先吃宿主 --line');
-    assert.ok(rootBlock.includes('--zfc-page-x: var(--page-x, 24px)'), '--zfc-page-x 未优先吃宿主 --page-x');
+    // 间接引用（var(--line)）会在 :root 上定型，宿主页内局部覆写将失效 —— 不允许
+    assert.doesNotMatch(rootBlock, /var\(--(?!zfc-)/, 'token 不得间接引用宿主变量');
+    assert.ok(rootBlock.includes('--zfc-line: #e2e4e8'), '--zfc-line 必须是范本发丝线色');
+    assert.ok(rootBlock.includes('--zfc-page-x: 24px'), '--zfc-page-x 必须是 24px');
     assert.ok(rootBlock.includes('--zfc-radius-sm: 8px'), '--zfc-radius-sm 必须是 8px');
+    assert.ok(rootBlock.includes('--zfc-primary: #0052d9'), '--zfc-primary 必须是认知蓝');
 });
 
 test('贴边：反向外扩一个 --zfc-page-x', () => {

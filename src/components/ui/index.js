@@ -44,4 +44,4 @@ export {default as SidebarShell} from './SidebarShell'
 // ProcessTimeline - 对话过程时间线（§17，Codex 风格）：组头 + 步骤链，宿主喂 group/step 结构
 export {default as ProcessTimeline} from './ProcessTimeline'
 
-export {brand, palette, neutral, radius, shadow, lift, space, fontSize, antdTheme} from './tokens'
+export {brand, palette, neutral, radius, shadow, lift, space, fontSize, cssVars, antdTheme} from './tokens'

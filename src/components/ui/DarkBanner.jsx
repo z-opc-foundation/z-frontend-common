@@ -1,4 +1,4 @@
-import {radius, shadow} from './tokens'
+import {radius} from './tokens'
 
 /**
  * 深色 CTA 横幅 - 借鉴 wenming7 "FOR DEVELOPERS" 区
@@ -34,7 +34,6 @@ export default function DarkBanner({
             background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #312e81 100%)',
             color: '#ffffff',
             overflow: 'hidden',
-            boxShadow: shadow.lg,
         }}>
             {/* 装饰光晕 */}
             <div style={{
@@ -119,17 +118,14 @@ export default function DarkBanner({
                             fontSize: 14,
                             fontWeight: 600,
                             textDecoration: 'none',
-                            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
-                            transition: 'transform 150ms ease, box-shadow 150ms ease',
+                            transition: 'filter 150ms ease',
                             whiteSpace: 'nowrap',
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-1px)'
-                            e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.5)'
+                            e.currentTarget.style.filter = 'brightness(1.06)'
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)'
+                            e.currentTarget.style.filter = 'none'
                         }}
                     >
                         {buttonText}

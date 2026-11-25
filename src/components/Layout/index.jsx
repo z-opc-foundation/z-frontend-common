@@ -1,8 +1,20 @@
-import { Avatar, Button, Dropdown, Spin, Tooltip } from 'antd'
+import { Avatar, Button, ConfigProvider, Dropdown, Spin, Tooltip } from 'antd'
 import { DownOutlined, LoginOutlined } from '@ant-design/icons'
 import { Outlet, useHref, useLocation, useNavigate } from 'react-router-dom'
 import MenuTree from '../ui/MenuTree.jsx'
 import SidebarShell from '../ui/SidebarShell.jsx'
+import {antdTheme} from '../ui/tokens'
+
+// 宿主传的 theme 与基座认知主题合并：token 深合并、component 按组件整体替换
+export function mergeTheme(override) {
+    if (!override) return antdTheme
+    return {
+        ...antdTheme,
+        ...override,
+        token: {...antdTheme.token, ...override.token},
+        components: {...antdTheme.components, ...override.components},
+    }
+}
 
 function collectItems(items) {
     return (items || []).flatMap((item) => item ? [item, ...collectItems(item.children)] : [])
@@ -26,6 +38,7 @@ export function AppLayout({
     userInfoKey = 'userInfo',
     headerExtra,
     loading = false,
+    theme,
 }) {
     const navigate = useNavigate()
     const location = useLocation()
@@ -79,9 +92,10 @@ export function AppLayout({
     const resolvedLoginPath = loginPath ?? anchorHref(home ? `${routePath(home.key).slice(0, -4)}login` : '/login')
 
     return (
-        <div style={{ height: '100dvh', minHeight: 280, display: 'flex', flexDirection: 'column', background: '#fff', color: '#172033' }}>
+        <ConfigProvider theme={mergeTheme(theme)}>
+        <div style={{ height: '100dvh', minHeight: 280, display: 'flex', flexDirection: 'column', background: '#fff', color: 'rgba(0, 0, 0, 0.9)' }}>
             <header style={{
-                minHeight: 48, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 16,
+                minHeight: 48, padding: '0 24px', display: 'flex', alignItems: 'center', gap: 16,
                 justifyContent: 'space-between', borderBottom: '1px solid #e2e4e8', flexShrink: 0,
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
@@ -122,16 +136,17 @@ export function AppLayout({
                 </div>
             </header>
             <div style={{ display: 'flex', flex: 1, minHeight: 0, minWidth: 0 }}>
-                <SidebarShell width={232} storageKey={`zfc-sidebar:${appShort}`}>
+                <SidebarShell width={260} storageKey={`zfc-sidebar:${appShort}`}>
                     {loading ? (
                         <div role="status" aria-label="正在加载菜单" style={{ padding: 16, textAlign: 'center' }}><Spin size="small" /></div>
                     ) : <MenuTree topItems={topItems} groups={groups} />}
                 </SidebarShell>
-                <main style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto', padding: 16 }}>
+                <main style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto', padding: 24 }}>
                     <Outlet />
                 </main>
             </div>
         </div>
+        </ConfigProvider>
     )
 }
 

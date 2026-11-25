@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from 'react'
-import {palette, radius, shadow, space} from './tokens'
+import {palette, radius, space} from './tokens'
 
 /**
  * 渐变数据卡 - 借鉴 wenming7/marketplace 数据卡设计
@@ -88,21 +88,18 @@ export default function GradientStatCard({
                 padding: space[5],
                 color: c.fg,
                 cursor: href ? 'pointer' : 'default',
-                boxShadow: shadow.md,
                 overflow: 'hidden',
-                transition: 'transform 200ms ease, box-shadow 200ms ease',
+                transition: 'filter 180ms ease',
                 minHeight: 110,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
             }}
             onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = shadow.lg
+                e.currentTarget.style.filter = 'brightness(1.03)'
             }}
             onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = shadow.md
+                e.currentTarget.style.filter = 'none'
             }}
         >
             {/* 右上角装饰圆 - 借鉴 wenming7 数据卡的光感 */}

@@ -60,8 +60,9 @@ function mount(routerRoot, props = {}) {
             useLocation: () => ({ pathname: '/z-script/home' }),
             useHref: to => { assert.equal(to, '/'); hrefCalls++; return routerRoot },
         }
-        if (id === 'antd') return Object.fromEntries(['Avatar', 'Button', 'Dropdown', 'Spin', 'Tooltip'].map(name => [name, name]))
+        if (id === 'antd') return Object.fromEntries(['Avatar', 'Button', 'ConfigProvider', 'Dropdown', 'Spin', 'Tooltip'].map(name => [name, name]))
         if (id === '@ant-design/icons') return { DownOutlined: 'down', LoginOutlined: 'login' }
+        if (id.endsWith('tokens')) return { antdTheme: {}, __esModule: true }
         if (id.endsWith('MenuTree.jsx')) return { default: 'menu', __esModule: true }
         if (id.endsWith('SidebarShell.jsx')) return { default: 'sidebar', __esModule: true }
         return require(id)

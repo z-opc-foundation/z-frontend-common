@@ -12,7 +12,7 @@
 
 export * from './components/ui/index.js'
 
-export { AppLayout } from './components/Layout/index.jsx'
+export { AppLayout, mergeTheme } from './components/Layout/index.jsx'
 export { default as LoginPage } from './components/LoginPage/index.jsx'
 export { default as StatusTag, defaultStatusMap } from './components/StatusTag/index.jsx'
 export { default as ErrorBoundary } from './components/ErrorBoundary/index.jsx'

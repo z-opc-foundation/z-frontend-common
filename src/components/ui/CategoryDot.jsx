@@ -25,13 +25,23 @@ export default function CategoryDot({color = 'blue', label, size = 8}) {
             color: '#111827',
         }}>
             <span style={{
-                width: size,
-                height: size,
+                width: size + 6,
+                height: size + 6,
                 borderRadius: '50%',
-                background: c.bg,
-                boxShadow: `0 0 0 3px ${c.soft}`,
+                background: c.soft,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 flexShrink: 0,
-            }}/>
+            }}>
+                <span style={{
+                    width: size,
+                    height: size,
+                    borderRadius: '50%',
+                    background: c.bg,
+                    flexShrink: 0,
+                }}/>
+            </span>
             {label && <span>{label}</span>}
         </span>
     )

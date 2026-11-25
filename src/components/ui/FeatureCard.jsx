@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {palette, radius, shadow, space} from './tokens'
+import {brand, neutral, palette, radius, space} from './tokens'
 
 /**
  * 功能卡 - 借鉴 wenming7/marketplace 应用卡设计
@@ -58,10 +58,8 @@ export default function FeatureCard({
                 borderRadius: radius.lg,
                 overflow: 'hidden',
                 cursor: href ? 'pointer' : 'default',
-                boxShadow: hover ? shadow.lg : shadow.sm,
-                transform: hover ? 'translateY(-2px)' : 'translateY(0)',
-                transition: 'transform 200ms ease, box-shadow 200ms ease',
-                border: '1px solid #f1f5f9',
+                border: `1px solid ${hover ? brand.primarySoft2 : neutral.border}`,
+                transition: 'border-color 180ms ease',
                 display: 'flex',
                 flexDirection: 'column',
             }}

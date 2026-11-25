@@ -11,26 +11,42 @@
  *   2) 共边 —— 相邻块 gap:0 + 后块 -1px 叠边，整页只看到 1px 分隔线
  *   3) 页面级零阴影 —— 阴影只属于浮层（下拉/气泡/菜单/弹窗）
  *
- * token 一律用 --zfc-* 前缀，且**优先吃宿主自有 token**（var(--line, …)），
- * 因此本文件不会覆盖任何域仓的品牌色/线色；域仓想改线色只需覆写 --zfc-* 或自有 --line。
+ * token 全部带 --zfc-* 前缀且**直接持有范本值**（不写 var(--line) 间接引用）：
+ * 间接层会在 :root 上定型，宿主页内局部覆写同名变量将失效。
+ * 域仓要换肤，直接覆写同名 --zfc-* 变量即可（作用域内覆写同样生效）。
+ *
+ * 本文件的 :root 与 src/components/ui/tokens.js 的 cssVars 镜像一一对应，
+ * 由 test/tokens.test.mjs 双向比对，两份真源不允许漂移。
  *
  * 用法：在应用入口 import 一次即可
  *   import '@yuku123/z-frontend-common/blocks.css'
  * ============================================================ */
 
 :root {
-    --zfc-line: var(--line, #e2e4e8);
-    --zfc-line-strong: var(--line-strong, #d3d6dc);
-    --zfc-surface: var(--surface, #ffffff);
-    --zfc-surface-2: var(--surface-2, #f3f3f3);
-    --zfc-ink: var(--ink, rgba(0, 0, 0, .9));
-    --zfc-ink-2: var(--ink-2, rgba(0, 0, 0, .6));
-    --zfc-muted: var(--muted, rgba(0, 0, 0, .62));
-    --zfc-muted-2: var(--muted-2, rgba(0, 0, 0, .48));
-    --zfc-radius-sm: 8px;
+    --zfc-bg: #ffffff;
+    --zfc-surface: #ffffff;
+    --zfc-surface-2: #f3f3f3;
+    --zfc-surface-3: #f3f3f3;
+    --zfc-ink: rgba(0, 0, 0, 0.9);
+    --zfc-ink-2: rgba(0, 0, 0, 0.6);
+    --zfc-muted: rgba(0, 0, 0, 0.62);
+    --zfc-muted-2: rgba(0, 0, 0, 0.48);
+    --zfc-line: #e2e4e8;
+    --zfc-line-strong: #d3d6dc;
+    --zfc-primary: #0052d9;
+    --zfc-primary-strong: #003cab;
+    --zfc-primary-soft: #e8f3ff;
+    --zfc-primary-soft-2: #bcd8ff;
+    --zfc-accent: #ffc53d;
+    --zfc-accent-soft: #fff6dd;
+    --zfc-sidebar: #f3f3f3;
+    --zfc-sidebar-line: #e7e7e7;
     --zfc-radius: 10px;
-    --zfc-page-x: var(--page-x, 24px);
-    --zfc-overlay-shadow: 0 14px 34px rgba(15, 27, 45, .14);
+    --zfc-radius-sm: 8px;
+    --zfc-page-x: 24px;
+    --zfc-sidebar-w: 260px;
+    --zfc-app-footer-h: 32px;
+    --zfc-overlay-shadow: 0 14px 34px rgba(15, 27, 45, 0.14);
 }
 
 /* ---------- 面板原语：1px 描边 + 8px 圆角 + 页面级零阴影 ---------- */
