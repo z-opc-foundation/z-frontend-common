@@ -20,6 +20,7 @@ export default defineConfig({
                 'ui': path.resolve(__dirname, 'src/components/ui/index.js'),
                 'ui-echarts': path.resolve(__dirname, 'src/components/ui/echarts.js'),
                 'code': path.resolve(__dirname, 'src/components/code/index.js'),
+                'blocks': path.resolve(__dirname, 'src/components/ui/blocks.jsx'),
             },
             formats: ['es'],
         },

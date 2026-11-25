@@ -1,0 +1,210 @@
+/* ============================================================
+ * z-frontend-common · blocks.css
+ * 「认知范式」块级结构样式（lead 008 §26）
+ *
+ * 范本源（唯一真源）：
+ *   z-cognition/_frontend/z-cognition-portal/doc/ui-style-guide.md
+ *   z-cognition/_frontend/z-cognition-portal/src/styles/global.css
+ *
+ * 三条核心口径：
+ *   1) 贴边 —— 内容大容器反向外扩到侧栏/视口边缘，内容区不漏灰底
+ *   2) 共边 —— 相邻块 gap:0 + 后块 -1px 叠边，整页只看到 1px 分隔线
+ *   3) 页面级零阴影 —— 阴影只属于浮层（下拉/气泡/菜单/弹窗）
+ *
+ * token 一律用 --zfc-* 前缀，且**优先吃宿主自有 token**（var(--line, …)），
+ * 因此本文件不会覆盖任何域仓的品牌色/线色；域仓想改线色只需覆写 --zfc-* 或自有 --line。
+ *
+ * 用法：在应用入口 import 一次即可
+ *   import '@yuku123/z-frontend-common/blocks.css'
+ * ============================================================ */
+
+:root {
+    --zfc-line: var(--line, #e2e4e8);
+    --zfc-line-strong: var(--line-strong, #d3d6dc);
+    --zfc-surface: var(--surface, #ffffff);
+    --zfc-surface-2: var(--surface-2, #f3f3f3);
+    --zfc-ink: var(--ink, rgba(0, 0, 0, .9));
+    --zfc-ink-2: var(--ink-2, rgba(0, 0, 0, .6));
+    --zfc-muted: var(--muted, rgba(0, 0, 0, .62));
+    --zfc-muted-2: var(--muted-2, rgba(0, 0, 0, .48));
+    --zfc-radius-sm: 8px;
+    --zfc-radius: 10px;
+    --zfc-page-x: var(--page-x, 24px);
+    --zfc-overlay-shadow: 0 14px 34px rgba(15, 27, 45, .14);
+}
+
+/* ---------- 面板原语：1px 描边 + 8px 圆角 + 页面级零阴影 ---------- */
+
+.zfc-panel {
+    background: var(--zfc-surface);
+    border: 1px solid var(--zfc-line);
+    border-radius: var(--zfc-radius-sm);
+    box-shadow: none;
+}
+
+.zfc-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--zfc-line);
+}
+
+.zfc-panel-title {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 650;
+    line-height: 1.4;
+    color: var(--zfc-ink);
+}
+
+.zfc-panel-hint {
+    font-size: 11.5px;
+    font-weight: 400;
+    color: var(--zfc-muted-2);
+}
+
+.zfc-panel-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.zfc-panel-body {
+    padding: 16px;
+}
+
+.zfc-panel-body.is-tight {
+    padding: 12px;
+}
+
+.zfc-panel-body.is-flush {
+    padding: 0;
+}
+
+.zfc-panel-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--zfc-line);
+    color: var(--zfc-muted);
+    font-size: 12px;
+}
+
+/* ---------- 贴边：内容大容器反向外扩，左右各退一个 --zfc-page-x ---------- */
+
+.zfc-bleed {
+    margin-left: calc(-1 * var(--zfc-page-x));
+    margin-right: calc(-1 * var(--zfc-page-x));
+}
+
+/* ---------- 共边：相邻块零间隙 + 后块叠 1px，直角无阴影，读作一整块 ---------- */
+
+.zfc-glue {
+    display: flex;
+    gap: 0;
+}
+
+.zfc-glue > * + * {
+    margin-left: -1px;
+}
+
+.zfc-glue-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.zfc-glue-col > * + * {
+    margin-top: -1px;
+}
+
+.zfc-glue > *,
+.zfc-glue-col > * {
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* ---------- 整屏多栏工作台：栏间零间隙，只用 1px 竖线分区 ---------- */
+
+.zfc-split {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    min-height: 0;
+}
+
+.zfc-split-side {
+    flex: 0 0 var(--zfc-split-w, 236px);
+    min-width: 0;
+}
+
+.zfc-split-handle {
+    position: relative;
+    flex: 0 0 1px;
+    background: var(--zfc-line);
+    cursor: col-resize;
+    touch-action: none;
+}
+
+/* 9px 命中区骑在 1px 竖线上，hover/拖动才亮主色 */
+.zfc-split-handle::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -4px;
+    width: 9px;
+}
+
+.zfc-split-handle:hover,
+.zfc-split-handle:focus-visible {
+    background: var(--zfc-line-strong);
+    outline: none;
+}
+
+.zfc-split-main {
+    flex: 1;
+    min-width: 0;
+}
+
+@media (max-width: 1080px) {
+    .zfc-split {
+        flex-direction: column;
+    }
+
+    .zfc-split-side {
+        flex: 0 0 auto;
+    }
+
+    .zfc-split-handle {
+        display: none;
+    }
+
+    .zfc-split-main {
+        border-top: 1px solid var(--zfc-line);
+    }
+}
+
+/* ---------- 卡片与浮层 ---------- */
+
+.zfc-card {
+    background: var(--zfc-surface);
+    border: 1px solid var(--zfc-line);
+    border-radius: var(--zfc-radius-sm);
+    box-shadow: none;
+}
+
+/* 浮层是全站唯一允许出现阴影的地方 */
+.zfc-overlay {
+    box-shadow: var(--zfc-overlay-shadow);
+}
+
+/* 页面级清零助手：把历史遗留的页面阴影/圆角压回范式 */
+.zfc-flat {
+    border-radius: 0;
+    box-shadow: none;
+}
