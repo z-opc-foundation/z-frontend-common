@@ -300,8 +300,17 @@ export const antdTheme = {
             titleFontSize: fontSize.base,
             horizontalItemGutter: 24,
         },
-        // Modal / Drawer：浮层圆角 10 / 侧抽屉直角
+        // Modal / Dropdown / Popover / Tooltip：浮层圆角 10；侧抽屉直角
         Modal: {
+            borderRadiusLG: radius.overlay,
+        },
+        Dropdown: {
+            borderRadiusLG: radius.overlay,
+        },
+        Popover: {
+            borderRadiusLG: radius.overlay,
+        },
+        Tooltip: {
             borderRadiusLG: radius.overlay,
         },
         Drawer: {
@@ -311,11 +320,13 @@ export const antdTheme = {
         Tag: {
             borderRadiusSM: radius.sm,
         },
-        // 输入类
+        // 输入类：控件 9px；Select 弹出层由域仓全局浮层规则收口为 10px
         Input: {
+            borderRadiusLG: radius.input,
             activeShadow: '0 0 0 2px rgba(0, 82, 217, 0.1)',
         },
         Select: {
+            borderRadiusLG: radius.input,
             optionSelectedBg: brand.primarySoft,
         },
         // 分段控件：浅灰轨道 + 白块选中（不用深色块）

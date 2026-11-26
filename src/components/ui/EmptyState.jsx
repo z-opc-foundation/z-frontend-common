@@ -1,6 +1,6 @@
 import {Button} from 'antd'
 import {InboxOutlined} from '@ant-design/icons'
-import {neutral, radius} from './tokens'
+import {neutral} from './tokens'
 
 /**
  * 统一空状态 - 借鉴 ui-ux-pro-max P8: Treat failure and emptiness as moments for direction.
@@ -35,12 +35,13 @@ export default function EmptyState({
         <div
             role="status"
             aria-live="polite"
+            className="zfc-empty-state"
             style={{
                 padding: padMap[size] || padMap.md,
                 textAlign: 'center',
-                background: '#ffffff',
-                borderRadius: radius.md,
-                border: '1px dashed #e5e7eb',
+                background: 'transparent',
+                borderRadius: 0,
+                border: 0,
                 ...style,
             }}
         >
@@ -53,7 +54,7 @@ export default function EmptyState({
                 background: neutral.surfaceAlt,
                 marginBottom: 16,
                 fontSize: 28,
-                color: '#9ca3af',
+                color: neutral.textDisabled,
             }}>
                 {icon || <InboxOutlined/>}
             </div>
@@ -77,15 +78,7 @@ export default function EmptyState({
                 </div>
             )}
             {actionText && onAction && (
-                <Button
-                    type="primary"
-                    onClick={onAction}
-                    style={{
-                        background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
-                        border: 'none',
-                        minHeight: 36,
-                    }}
-                >
+                <Button type="primary" onClick={onAction}>
                     {actionText}
                 </Button>
             )}

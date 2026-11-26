@@ -20,6 +20,7 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 const UI_DIR = path.join(REPO_ROOT, 'src', 'components', 'ui')
 const CSS_PATH = path.join(UI_DIR, 'blocks.css')
 const LAYOUT_PATH = path.join(REPO_ROOT, 'src', 'components', 'Layout', 'index.jsx')
+const EMPTY_STATE_PATH = path.join(UI_DIR, 'EmptyState.jsx')
 
 /* ------------------------------------------------------------------ *
  * 1) 认知 token 值
@@ -83,6 +84,14 @@ test('基座 UI 组件里不出现任何 boxShadow', () => {
     assert.deepEqual(offenders, [], '页面级组件不得带阴影')
 })
 
+test('EmptyState 是结果区域本身，不套卡片也不回退旧紫渐变', () => {
+    const src = fs.readFileSync(EMPTY_STATE_PATH, 'utf8')
+    assert.match(src, /className="zfc-empty-state"/)
+    assert.match(src, /borderRadius: 0/)
+    assert.match(src, /border: 0/)
+    assert.doesNotMatch(src, /linear-gradient|#7c3aed|#6d28d9|#8b5cf6/)
+})
+
 /* ------------------------------------------------------------------ *
  * 3) antdTheme = 认知口径
  * ------------------------------------------------------------------ */
@@ -100,6 +109,13 @@ test('antd 主题：主色 / 圆角 / 浅色侧栏 / 卡片零阴影', () => {
     assert.equal(t.boxShadowTertiary, 'none')
     assert.equal(antdTheme.components.Card.boxShadowTertiary, 'none')
     assert.equal(antdTheme.components.Card.borderRadiusLG, 8)
+    assert.equal(antdTheme.components.Input.borderRadiusLG, 9)
+    assert.equal(antdTheme.components.Select.borderRadiusLG, 9)
+    assert.equal(antdTheme.components.Modal.borderRadiusLG, 10)
+    assert.equal(antdTheme.components.Dropdown.borderRadiusLG, 10)
+    assert.equal(antdTheme.components.Popover.borderRadiusLG, 10)
+    assert.equal(antdTheme.components.Tooltip.borderRadiusLG, 10)
+    assert.equal(antdTheme.components.Drawer.borderRadiusLG, 0)
     assert.equal(antdTheme.components.Layout.siderBg, '#f3f3f3')
     assert.equal(antdTheme.components.Menu.itemSelectedBg, '#e8f3ff')
     assert.equal(antdTheme.components.Menu.activeBarWidth, 0)

@@ -93,8 +93,8 @@ export function AppLayout({
 
     return (
         <ConfigProvider theme={mergeTheme(theme)}>
-        <div style={{ height: '100dvh', minHeight: 280, display: 'flex', flexDirection: 'column', background: '#fff', color: 'rgba(0, 0, 0, 0.9)' }}>
-            <header style={{
+        <div className="zfc-app-shell" style={{ height: '100dvh', minHeight: 280, display: 'flex', flexDirection: 'column', background: '#fff', color: 'rgba(0, 0, 0, 0.9)' }}>
+            <header className="zfc-app-header" style={{
                 minHeight: 48, padding: '0 24px', display: 'flex', alignItems: 'center', gap: 16,
                 justifyContent: 'space-between', borderBottom: '1px solid #e2e4e8', flexShrink: 0,
             }}>
@@ -135,13 +135,13 @@ export function AppLayout({
                     )}
                 </div>
             </header>
-            <div style={{ display: 'flex', flex: 1, minHeight: 0, minWidth: 0 }}>
+            <div className="zfc-app-body" style={{ display: 'flex', flex: 1, minHeight: 0, minWidth: 0 }}>
                 <SidebarShell width={260} storageKey={`zfc-sidebar:${appShort}`}>
                     {loading ? (
                         <div role="status" aria-label="正在加载菜单" style={{ padding: 16, textAlign: 'center' }}><Spin size="small" /></div>
                     ) : <MenuTree topItems={topItems} groups={groups} />}
                 </SidebarShell>
-                <main style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto', padding: 24 }}>
+                <main className="zfc-app-main" style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto', padding: '0 24px' }}>
                     <Outlet />
                 </main>
             </div>

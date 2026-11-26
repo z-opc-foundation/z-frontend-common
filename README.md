@@ -15,7 +15,7 @@
 |------|-----|
 | 仓 | `z-opc-foundation/z-frontend-common`（本仓） |
 | npm 包 | `@yuku123/z-frontend-common`（scope 沿用 yuku123，与 0.1.x/0.2.x 旧线连续） |
-| 当前版本 | `1.6.0`（`package.json` 现读） —— 1.0 语义：§1-§16 规范化起点；1.1.x 在其上追加扁平 ui 组件桶；1.2.0 追加 `./code` 代码编辑器子路径（ZCodeEditor + 自研 g4 语法桥）；1.3.0 追加 §17 统一侧栏件（MenuTree + SidebarShell）；1.3.1 给 SidebarShell 补纯文字 title 槽；1.4.0 追加 §17 对话过程时间线件（ProcessTimeline）；1.5.0 追加 §26「认知范式」块级结构件（`./blocks` 子路径 + `./blocks.css`）；1.6.0 把 design token 整体换成认知范本 token 集（主色 #0052d9 / 圆角阶梯 / 页面级零阴影），并由 `AppLayout` 直接把该主题注入 antd。0.1.x 是 pre-§16 形态；0.2.x 内嵌 react-dom 已废弃 |
+| 当前版本 | `1.6.1`（`package.json` 现读） —— 1.0 语义：§1-§16 规范化起点；1.1.x 在其上追加扁平 ui 组件桶；1.2.0 追加 `./code` 代码编辑器子路径（ZCodeEditor + 自研 g4 语法桥）；1.3.0 追加 §17 统一侧栏件（MenuTree + SidebarShell）；1.3.1 给 SidebarShell 补纯文字 title 槽；1.4.0 追加 §17 对话过程时间线件（ProcessTimeline）；1.5.0 追加 §26「认知范式」块级结构件（`./blocks` 子路径 + `./blocks.css`）；1.6.0 把 design token 整体换成认知范本 token 集（主色 #0052d9 / 圆角阶梯 / 页面级零阴影），并由 `AppLayout` 直接把该主题注入 antd；1.6.1 补齐浮层/输入圆角、贴边主区与无卡片空态。0.1.x 是 pre-§16 形态；0.2.x 内嵌 react-dom 已废弃 |
 | 技术栈 | React 19 + antd 6 + react-router-dom 7 + Vite 6（lead 005 §3.0 版本线单一尺子） |
 | 产物 | ESM **5 入口**（`formats: ['es']`）：`dist/index.js`（主桶）+ `dist/ui.js`（扁平 ui 桶）+ `dist/ui-echarts.js`（`ui/echarts` 子路径）+ `dist/code.js`（`./code` 代码编辑器子路径，CodeMirror 6 + 自研 g4 语法桥全量打入）+ `dist/blocks.js`（`./blocks` 块级结构件子路径） |
 | 打包策略 | external 精确 **9** 个包 + **1** 条前缀规则（`echarts/*`）：react / react-dom / react-dom/client / react/jsx-runtime / react-router-dom / antd / @ant-design/icons / axios / echarts |

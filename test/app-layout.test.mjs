@@ -40,7 +40,9 @@ test('应用壳复用认知菜单并保留分组与详情选中态', () => {
     assert.match(html, /资源条目/)
     assert.match(html, /<a[^>]*is-active[^>]*href="\/catalog\/items"/)
     assert.doesNotMatch(html, /<a[^>]*is-active[^>]*href="\/catalog"/)
-    assert.match(html, /<main[^>]*><article>详情内容<\/article><\/main>/)
+    assert.match(html, /<main[^>]*class="zfc-app-main"[^>]*><article>详情内容<\/article><\/main>/)
+    assert.match(html, /padding:0 24px/)
+    assert.doesNotMatch(html, /padding:24px/)
 })
 
 test('路径命中按段匹配，不误选同名前缀', () => {
